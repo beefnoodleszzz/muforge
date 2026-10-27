@@ -14,9 +14,6 @@ function createApp() {
   const { runMigrationsAndEnsure } = require('./db/migrate.js');
   runMigrationsAndEnsure(db);
 
-  // 厂商锁定模式：在迁移完成后同步 vendor_lock 配置
-  const { applyVendorLock } = require('./services/aiConfigService');
-  applyVendorLock(db, logger, config);
   const log = logger;
 
   const taskService = require('./services/taskService');

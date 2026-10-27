@@ -28,7 +28,7 @@
           <el-button class="btn-library" title="媒体素材库" @click="$router.push('/media-library')">
             <el-icon><Files /></el-icon>素材库
           </el-button> -->
-          <el-button v-if="!vendorLockEnabled" class="btn-wechat" title="扫码联系上游作者" @click="showWechat = true">
+          <el-button  class="btn-wechat" title="扫码联系上游作者" @click="showWechat = true">
             <el-icon><ChatDotSquare /></el-icon>上游作者
           </el-button>
           <el-button class="btn-theme" :title="isDark ? '切换到浅色模式' : '切换到暗色模式'" @click="toggleTheme">
@@ -315,7 +315,7 @@
     </el-dialog>
 
     <!-- 微信二维码 -->
-    <el-dialog v-if="!vendorLockEnabled" v-model="showWechat" title="微信联系上游作者" width="320px" align-center>
+    <el-dialog  v-model="showWechat" title="微信联系上游作者" width="320px" align-center>
       <div style="text-align:center;padding:8px 0 4px">
         <img src="/wx.jpg" alt="上游作者微信二维码" style="width:240px;height:240px;object-fit:contain;border-radius:8px;" />
         <p style="margin:12px 0 0;font-size:13px;color:var(--text-secondary,#a1a1aa);">扫码添加微信，欢迎交流</p>
@@ -365,7 +365,6 @@ import { sceneLibraryAPI } from '@/api/sceneLibrary'
 import { propLibraryAPI } from '@/api/propLibrary'
 import AIConfigContent from '@/components/AIConfigContent.vue'
 import { uploadAPI } from '@/api/upload'
-import { aiAPI } from '@/api/ai'
 import { imagesAPI } from '@/api/images'
 import { taskAPI } from '@/api/task'
 import { getStyleLabel } from '@/constants/styleOptions'
@@ -435,7 +434,7 @@ const total = ref(0)
 
 const showAiConfigDialog = ref(false)
 const showWechat = ref(false)
-const vendorLockEnabled = ref(false)
+
 
 // 图片预览
 const previewImageUrl = ref(null)
@@ -789,10 +788,7 @@ async function onDelete(d) {
 onMounted(async () => {
   loadList()
   loadExamples()
-  try {
-    const lock = await aiAPI.getVendorLock()
-    vendorLockEnabled.value = !!lock?.enabled
-  } catch (_) {}
+
 })
 </script>
 

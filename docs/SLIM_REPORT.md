@@ -168,3 +168,35 @@
 本批有效删除 20 文件，122689 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch4b。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
 
 助手批次首轮回滚说明：batch4 的启动验收发现残留 createAgentHandlers 工厂调用，整批代码已立即恢复并停止沙箱；删除遗漏的工厂调用后，以新的独立clone/空库batch4b完整重验通过。属于已解释并修正的删除悬空引用，没有扩大功能范围。并行只读审查通过。
+
+渠道/SD2配置批次额外真实配音（用户明确批准）：audition_01，同句“现在开始测试本地配音。”，单次31.812秒完成；WAV pcm_s24le、48000Hz、单声道、2.48秒、357222字节。SHA-256 740de1f7481fc7263c82d5bfa9f95b1a0f2119cde4eae1a8f4519c462f141619；平均/最大音量-19.8/-3.9dB，完整解码非静音。格式、时长与删除前基线一致，本次连字节SHA也一致。输出仅在sandbox-e5，真实用户指纹一致，无重试、无共享服务状态修改；最终验收的一次尚未调用。
+
+## 有效批次 5：渠道锁与远端SD2认证功能单元
+
+本批已通过真实目录与独立沙箱测试/构建、setup/start/status/health、本机制作/项目列表浏览器、两次PNG及一次MP4 curl导入、分镜绑定/旧Take/来源SHA、FFmpeg合成及完整解码；真实data/.local前后指纹一致。共享Qwen仅只读检测；沙箱已停止并保留。
+
+| 路径 | 变更 | 原文件字节 |
+| --- | --- | --- |
+| backend-node/src/app.js | M | 4405 |
+| backend-node/src/routes/aiConfig.js | M | 7325 |
+| backend-node/src/routes/characters.js | M | 17745 |
+| backend-node/src/routes/index.js | M | 16584 |
+| backend-node/src/routes/upload.js | M | 3134 |
+| backend-node/src/services/aiConfigService.js | M | 24055 |
+| backend-node/src/services/characterLibraryService.js | M | 49366 |
+| backend-node/src/services/jimengMaterialHubService.js | M | 13780 |
+| backend-node/src/services/modelArkAssetConfigService.js | D | 7695 |
+| backend-node/src/services/modelArkAssetProxyService.js | D | 7924 |
+| backend-node/test/jimengMaterialHub.test.js | M | 1662 |
+| backend-node/test/modelArkAssetConfig.test.js | D | 1406 |
+| docs/SLIM_PLAN.md | M | 60490 |
+| docs/SLIM_REPORT.md | M | 12274 |
+| frontweb/src/api/ai.js | M | 1112 |
+| frontweb/src/api/characters.js | M | 2228 |
+| frontweb/src/components/AIConfigContent.vue | M | 119509 |
+| frontweb/src/components/Sd2AssetManagement.vue | D | 29249 |
+| frontweb/src/composables/filmCreate/useCharacters.js | M | 29830 |
+| frontweb/src/views/FilmCreate.vue | M | 432376 |
+| frontweb/src/views/FilmList.vue | M | 55229 |
+
+本批有效删除 4 文件，46274 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch5。前文回滚尝试仅作过程记录，不影响本次独立重验结果。

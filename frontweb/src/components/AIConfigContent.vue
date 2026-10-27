@@ -4,7 +4,7 @@
       <el-tab-pane label="AI 配置" name="configs">
         <div class="tab-content">
           <!-- 普通模式操作栏 -->
-          <div v-if="!vendorLock.enabled" class="content-actions">
+          <div  class="content-actions">
             <div class="actions-left">
               <el-button type="primary" @click="openAdd">
                 <el-icon><Plus /></el-icon>
@@ -52,21 +52,7 @@
             </div>
           </div>
           <!-- 锁定模式提示栏 -->
-          <div v-else class="vendor-lock-bar">
-            <el-alert
-              type="info"
-              :closable="false"
-              class="vendor-lock-tip"
-            >
-              <template #title>
-                <span>🔒 当前为厂商锁定模式，AI 服务由管理员统一配置。你只能修改 <b>API Key</b> 和 <b>默认模型</b>。</span>
-              </template>
-            </el-alert>
-            <el-button type="primary" size="small" class="vendor-bulk-key-btn" @click="openBulkKey">
-              <el-icon><Key /></el-icon>
-              一键换Key
-            </el-button>
-          </div>
+
           <p class="default-tip">每种服务类型仅有一个默认配置：文本用于生成故事；文本生成图片用于角色/场景/道具图；分镜图片生成用于分镜图（支持参考图）；视频用于生成视频；语音合成 TTS 用于分镜配音；即梦2角色认证用于创作页 SD2 认证（网关 Token）；SD2 资产库用于官方 ModelArk 私有资产（在未配置即梦2角色认证时供 SD2 认证使用）。</p>
           <el-table
             v-loading="loading"
@@ -75,7 +61,7 @@
             style="width: 100%"
             @selection-change="onSelectionChange"
           >
-            <el-table-column v-if="!vendorLock.enabled" type="selection" width="46" />
+            <el-table-column  type="selection" width="46" />
             <el-table-column prop="name" label="名称" min-width="130" />
             <el-table-column prop="provider" label="提供商" width="96" />
             <el-table-column prop="base_url" label="Base URL" min-width="170" show-overflow-tooltip />
@@ -109,8 +95,8 @@
             <el-table-column label="操作" width="180" fixed="right">
               <template #default="{ row }">
                 <el-button link type="primary" size="small" @click="openTest(row)">测试</el-button>
-                <el-button link type="primary" size="small" @click="onRowEdit(row)">{{ vendorLock.enabled ? '修改Key' : '编辑' }}</el-button>
-                <el-button v-if="!vendorLock.enabled" link type="danger" size="small" @click="onDelete(row)">删除</el-button>
+                <el-button link type="primary" size="small" @click="onRowEdit(row)">{{ '编辑' }}</el-button>
+                <el-button  link type="danger" size="small" @click="onDelete(row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -198,66 +184,22 @@
           </div>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="SD2 资产管理" name="sd2_assets">
-        <div class="tab-content">
-          <Sd2AssetManagement :configs="list" @saved="loadList" />
-        </div>
-      </el-tab-pane>
+
     </el-tabs>
 
     <!-- 添加/编辑 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="vendorLock.enabled ? '修改 API Key / 默认模型' : (editingId ? '编辑配置' : '添加配置')"
+      :title="editingId ? '编辑配置' : '添加配置'"
       width="520px"
       :close-on-click-modal="false"
       @closed="resetForm"
     >
       <!-- 锁定模式：只展示 api_key 和 default_model -->
-      <template v-if="vendorLock.enabled">
-        <el-descriptions :column="1" border style="margin-bottom: 16px">
-          <el-descriptions-item label="名称">{{ form.name }}</el-descriptions-item>
-          <el-descriptions-item label="类型">{{ serviceTypeLabel(form.service_type) }}</el-descriptions-item>
-          <el-descriptions-item label="厂商">{{ form.provider }}</el-descriptions-item>
-        </el-descriptions>
-        <el-form ref="formRef" :model="form" label-width="100px">
-          <el-form-item prop="api_key" :rules="[{ required: true, message: '请输入 API Key', trigger: 'blur' }]">
-            <template #label><span class="form-label-tip">API Key</span></template>
-            <el-input
-              v-model="form.api_key"
-              type="password"
-              :placeholder="form.provider === 'jimeng_ai_api' ? '即梦 Session，多个用英文逗号分隔' : '输入你的 API 密钥'"
-              show-password
-            />
-          </el-form-item>
-          <el-form-item>
-            <template #label><span class="form-label-tip">默认模型</span></template>
-            <el-select v-model="form.default_model" clearable style="width: 100%">
-              <el-option v-for="m in formModelList" :key="m" :label="m" :value="m" />
-            </el-select>
-            <p class="field-tip">实际调用时使用的模型，可从预设列表中选择。</p>
-          </el-form-item>
-          <el-form-item>
-            <template #label>
-              <span class="form-label-tip">设为默认
-                <el-tooltip placement="top" popper-class="cfg-tip-popper">
-                  <template #content>
-                    <div class="cfg-tip-content">
-                      每种服务类型只有一个「默认」配置。<br>
-                      生成时系统会优先使用默认配置，建议每类至少设一个默认。
-                    </div>
-                  </template>
-                  <el-icon class="tip-icon"><QuestionFilled /></el-icon>
-                </el-tooltip>
-              </span>
-            </template>
-            <el-switch v-model="form.is_default" />
-          </el-form-item>
-        </el-form>
-      </template>
+
 
       <!-- 普通模式：完整表单 -->
-      <el-form v-else ref="formRef" :model="form" :rules="rules" label-width="100px">
+      <el-form  ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item prop="service_type">
           <template #label>
             <span class="form-label-tip">服务类型
@@ -282,7 +224,7 @@
             <el-option label="分镜图片生成" value="storyboard_image" />
             <el-option label="视频生成" value="video" />
             <el-option label="语音合成 TTS" value="tts" />
-            <el-option label="即梦2角色认证" value="jimeng2_character_auth" />
+
           </el-select>
         </el-form-item>
         <el-form-item prop="provider">
@@ -609,21 +551,7 @@ input_reference = (图片文件，可选)</pre>
             show-password
           />
         </el-form-item>
-        <el-form-item v-if="form.service_type === 'jimeng2_character_auth'">
-          <template #label><span class="form-label-tip">素材列表</span></template>
-          <div class="jimeng2-assets-actions">
-            <el-button type="primary" plain :loading="jimeng2AssetsLoading" @click="openJimeng2MaterialAssetsDialog">
-              列出素材
-            </el-button>
-            <span class="field-tip jimeng2-assets-tip">
-              调用网关
-              <code>GET /api/business/v1/assets</code>
-              ，与
-              <a href="https://83zi.com/sd2realperson.html" target="_blank" rel="noopener noreferrer">素材管理 API 文档</a>
-              一致（使用当前表单中的网关 URL 与 Token，无需先保存）。
-            </span>
-          </div>
-        </el-form-item>
+
         <el-alert
           v-if="form.service_type === 'jimeng2_character_auth'"
           type="info"
@@ -1103,41 +1031,7 @@ input_reference = (图片文件，可选)</pre>
     </el-dialog>
 
     <!-- 即梦2角色认证：素材列表 -->
-    <el-dialog
-      v-model="jimeng2AssetsDialogVisible"
-      title="素材库列表（GET /api/business/v1/assets）"
-      width="720px"
-      class="jimeng2-assets-dialog"
-      destroy-on-close
-      @closed="onJimeng2AssetsDialogClosed"
-    >
-      <p class="field-tip" style="margin-top: 0">
-        文档：
-        <a href="https://83zi.com/sd2realperson.html" target="_blank" rel="noopener noreferrer">SilvaMux 素材管理 API</a>
-        ；仅 <code>status=active</code> 的素材可用于 Seedance 2.0 视频引用。
-      </p>
-      <el-table v-loading="jimeng2AssetsLoading" :data="jimeng2AssetsRows" stripe max-height="420" empty-text="暂无数据或未加载">
-        <el-table-column prop="id" label="素材 ID" min-width="120" show-overflow-tooltip />
-        <el-table-column prop="name" label="名称" width="100" show-overflow-tooltip />
-        <el-table-column prop="asset_type" label="类型" width="88" />
-        <el-table-column prop="status" label="状态" width="96">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : row.status === 'failed' ? 'danger' : 'info'" size="small">
-              {{ row.status || '—' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="asset_url" label="asset_url" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="url" label="原始 URL" min-width="120" show-overflow-tooltip />
-        <el-table-column prop="created_at" label="创建时间" width="160" show-overflow-tooltip />
-      </el-table>
-      <div v-if="jimeng2AssetsHasMore" style="margin-top: 12px; text-align: center">
-        <el-button :loading="jimeng2AssetsLoading" @click="loadMoreJimeng2MaterialAssets">加载更多</el-button>
-      </div>
-      <template #footer>
-        <el-button @click="jimeng2AssetsDialogVisible = false">关闭</el-button>
-      </template>
-    </el-dialog>
+
 
     <!-- 测试连接 -->
     <el-dialog v-model="testVisible" title="测试连接" width="420px">
@@ -1167,30 +1061,7 @@ input_reference = (图片文件，可选)</pre>
     </el-dialog>
 
     <!-- 一键换Key（锁定模式） -->
-    <el-dialog v-model="bulkKeyVisible" title="一键换Key" width="440px" :close-on-click-modal="false">
-      <el-alert
-        type="warning"
-        :closable="false"
-        style="margin-bottom: 16px"
-        title="此操作将替换所有配置的 API Key，请确认新 Key 可用后再提交。"
-        show-icon
-      />
-      <el-form label-width="80px">
-        <el-form-item label="新 API Key">
-          <el-input
-            v-model="bulkKeyInput"
-            type="password"
-            show-password
-            placeholder="粘贴新的 API Key"
-            clearable
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="bulkKeyVisible = false">取消</el-button>
-        <el-button type="primary" :loading="bulkKeySaving" :disabled="!bulkKeyInput.trim()" @click="submitBulkKey">确认替换</el-button>
-      </template>
-    </el-dialog>
+
   </div>
 </template>
 
@@ -1202,7 +1073,6 @@ import { aiAPI } from '@/api/ai'
 import { generationSettingsAPI } from '@/api/prompts'
 import PromptEditor from '@/components/PromptEditor.vue'
 import SceneModelMap from '@/components/SceneModelMap.vue'
-import Sd2AssetManagement from '@/components/Sd2AssetManagement.vue'
 
 const activeTab = ref('configs')
 const importFileRef = ref(null)
@@ -1258,19 +1128,19 @@ const loading = ref(false)
 const list = ref([])
 const selectedRows = ref([])
 const batchDeleting = ref(false)
-const vendorLock = ref({ enabled: false, config_file: '' })
+
 const dialogVisible = ref(false)
 const editingId = ref(null)
 const saving = ref(false)
 const showProtocolHelp = ref(false)
-const bulkKeyVisible = ref(false)
-const bulkKeyInput = ref('')
-const bulkKeySaving = ref(false)
-const jimeng2AssetsDialogVisible = ref(false)
-const jimeng2AssetsLoading = ref(false)
-const jimeng2AssetsRows = ref([])
-const jimeng2AssetsHasMore = ref(false)
-const jimeng2AssetsNextCursor = ref(null)
+
+
+
+
+
+
+
+
 const formRef = ref(null)
 const form = ref({
   service_type: 'text',
@@ -1317,25 +1187,7 @@ watch(
 
 function onServiceTypeChange() {
   const st = form.value.service_type || 'text'
-  if (st === 'jimeng2_character_auth') {
-    if (!form.value.provider || form.value.provider === CUSTOM_PROVIDER_SENTINEL) {
-      form.value.provider = 'jimeng_material_api'
-    }
-    const p = form.value.provider
-    const pcfg = (providerConfigs.jimeng2_character_auth || []).find((x) => x.id === p)
-    if (pcfg) {
-      if (!form.value.base_url?.trim()) form.value.base_url = getBaseUrlForProvider(p)
-      form.value.modelText = '-'
-      form.value.default_model = '-'
-      form.value.endpoint = ''
-      form.value.query_endpoint = ''
-      form.value.api_protocol = ''
-    }
-    if (!editingId.value && !form.value.name?.trim()) {
-      form.value.name = '即梦2角色认证'
-    }
-    return
-  }
+
   const listByType = providerConfigs[st] || []
   const current = form.value.provider
   if (!current || !listByType.some((p) => p.id === current)) {
@@ -1367,10 +1219,7 @@ const rules = computed(() => ({
       validator: (_rule, v, cb) => {
         const st = form.value.service_type
         if (st === 'tts' && form.value.provider === 'qwen_local') return cb()
-        if (st === 'jimeng2_character_auth') {
-          if (v != null && String(v).trim()) return cb()
-          return cb(new Error('请填写 Token'))
-        }
+
         const proto = form.value.api_protocol
         const ak = (form.value.kling_access_key || '').trim()
         const sk = (form.value.kling_secret_key || '').trim()
@@ -1467,9 +1316,7 @@ const providerConfigs = {
     { id: 'qwen_local', name: 'Qwen3-TTS（本机 Mac）', models: ['qwen3-tts'] },
     { id: 'minimax', name: 'MiniMax T2A', models: ['speech-02-hd', 'speech-02-turbo'] },
   ],
-  jimeng2_character_auth: [
-    { id: 'jimeng_material_api', name: '即梦业务素材 API（/api/business/v1）', models: ['-'] },
-  ],
+
 }
 
 /** 厂商 id → 默认接口规范（api_protocol） */
@@ -1849,18 +1696,13 @@ function serviceTypeLabel(t) {
     storyboard_image: '分镜图片生成',
     video: '视频',
     tts: '语音合成 TTS',
-    jimeng2_character_auth: '即梦2角色认证',
+
     model_ark_asset: 'SD2 资产库',
   }
   return map[t] || t
 }
 
 function onRowEdit(row) {
-  if (row.service_type === 'model_ark_asset') {
-    activeTab.value = 'sd2_assets'
-    ElMessage.info('请在「SD2 资产管理」标签页编辑此配置')
-    return
-  }
   openEdit(row)
 }
 
@@ -2057,82 +1899,25 @@ async function submit() {
   }
 }
 
-function openBulkKey() {
-  bulkKeyInput.value = ''
-  bulkKeyVisible.value = true
-}
 
-async function submitBulkKey() {
-  const key = bulkKeyInput.value.trim()
-  if (!key) return
-  bulkKeySaving.value = true
-  try {
-    const res = await aiAPI.bulkUpdateKey(key)
-    ElMessage.success(res?.message || '所有配置的 API Key 已更新')
-    bulkKeyVisible.value = false
-    await loadList()
-  } catch (_) {
-  } finally {
-    bulkKeySaving.value = false
-  }
-}
 
-function onJimeng2AssetsDialogClosed() {
-  jimeng2AssetsRows.value = []
-  jimeng2AssetsNextCursor.value = null
-  jimeng2AssetsHasMore.value = false
-}
 
-async function fetchJimeng2MaterialAssets(firstPage) {
-  if (!form.value.base_url?.trim() || !form.value.api_key?.trim()) {
-    ElMessage.warning('请先填写网关 URL 与 Token')
-    return
-  }
-  if (firstPage) {
-    jimeng2AssetsRows.value = []
-    jimeng2AssetsNextCursor.value = null
-    jimeng2AssetsHasMore.value = false
-    jimeng2AssetsDialogVisible.value = true
-  }
-  jimeng2AssetsLoading.value = true
-  try {
-    const data = await aiAPI.listJimeng2MaterialAssets({
-      base_url: form.value.base_url.trim(),
-      api_key: form.value.api_key,
-      limit: 20,
-      cursor: firstPage ? undefined : jimeng2AssetsNextCursor.value || undefined,
-    })
-    const items = Array.isArray(data?.items) ? data.items : []
-    if (firstPage) {
-      jimeng2AssetsRows.value = items
-    } else {
-      jimeng2AssetsRows.value = [...jimeng2AssetsRows.value, ...items]
-    }
-    jimeng2AssetsNextCursor.value = data?.next_cursor ?? null
-    jimeng2AssetsHasMore.value = !!data?.has_more
-  } catch (_) {
-    /* request 拦截器已 ElMessage */
-  } finally {
-    jimeng2AssetsLoading.value = false
-  }
-}
 
-function openJimeng2MaterialAssetsDialog() {
-  fetchJimeng2MaterialAssets(true)
-}
 
-function loadMoreJimeng2MaterialAssets() {
-  if (!jimeng2AssetsHasMore.value || !jimeng2AssetsNextCursor.value) return
-  fetchJimeng2MaterialAssets(false)
-}
+
+
+
+
+
+
 
 async function openTest(row) {
   if (row.service_type === 'jimeng2_character_auth') {
-    ElMessage.info('即梦2角色认证无需在此联调；保存后请在创作页「角色生成」中点击「SD2认证」验证。')
+    ElMessage.info('即梦2角色认证无需在此联调；保存后该平台认证功能已退役，历史配置仅保留。')
     return
   }
   if (row.service_type === 'model_ark_asset') {
-    ElMessage.info('SD2 资产库请在「SD2 资产管理」标签页使用「刷新列表」验证连接。')
+    ElMessage.info('该平台资产管理功能已退役，历史配置仅保留。')
     return
   }
   testVisible.value = true
@@ -2400,16 +2185,9 @@ async function importConfigs(event) {
   }
 }
 
-async function loadVendorLock() {
-  try {
-    vendorLock.value = await aiAPI.getVendorLock()
-  } catch (_) {
-    vendorLock.value = { enabled: false, config_file: '' }
-  }
-}
+
 
 onMounted(() => {
-  loadVendorLock()
   loadList()
   loadGenerationSettings()
 })

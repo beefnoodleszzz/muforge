@@ -22,28 +22,9 @@ const upload = multer({
 });
 
 // Seedance 2.0 音色参考音频上传（支持常见音频格式）
-const allowedAudioTypes = [
-  'audio/mpeg',
-  'audio/mp3',
-  'audio/wav',
-  'audio/x-wav',
-  'audio/mp4',
-  'audio/m4a',
-  'audio/ogg',
-  'audio/webm',
-];
-const audioMaxSize = 10 * 1024 * 1024; // 10MB
-const audioUpload = multer({
-  storage: memoryStorage,
-  limits: { fileSize: audioMaxSize },
-  fileFilter: (req, file, cb) => {
-    const ct = file.mimetype || 'application/octet-stream';
-    if (!allowedAudioTypes.includes(ct)) {
-      return cb(new Error('只支持音频格式 (mp3, wav, m4a, ogg)'));
-    }
-    cb(null, true);
-  },
-});
+
+ // 10MB
+
 
 function routes(cfg, log, db) {
   const singleUpload = upload.single('file');
@@ -99,6 +80,6 @@ module.exports = {
   routes,
   upload,
   multerSingle: upload.single('file'),
-  multerAudioSingle: audioUpload.single('file'),
+
   MAX_IMAGE_SIZE_MB: MAX_SIZE_MB,
 };

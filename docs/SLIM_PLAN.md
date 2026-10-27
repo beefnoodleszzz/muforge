@@ -334,3 +334,28 @@ Electron批次细化：7份SQL原样移动至backend-node/migrations/archive/des
 执行记录：批次 3（Electron退休与历史迁移归档）隔离验证全部通过，详见SLIM_REPORT有效批次。第一批曾回滚的门禁问题现已有用户明确授权，不再阻塞。TTS共用配置代码修改及该批额外一次真实推理也已另获明确批准。
 
 执行记录：批次 4b（Mastra工具型助手功能单元）隔离验证全部通过，详见SLIM_REPORT有效批次。第一批曾回滚的门禁问题现已有用户明确授权，不再阻塞。TTS共用配置代码修改及该批额外一次真实推理也已另获明确批准。
+
+## 16个有调用接口的最终处置依据
+
+用户要求按功能是否属于出片链路判断，取代原25条全删估算。以下6条保留，因此imageClient/videoClient/klingJwt等当前仍被核心调用的实现、测试与依赖不能当死代码删除。没有新写接口或把生成请求伪装成import；生产image_gen/Kling MCP仍通过既有导入链路。
+
+| 接口 | 处置 | 理由 |
+| --- | --- | --- |
+| POST /api/v1/ai-configs/jimeng2-list-assets | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| POST /api/v1/ai-configs/model-ark-asset | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| GET /api/v1/ai-configs/vendor-lock | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| PUT /api/v1/ai-configs/bulk-update-key | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| POST /api/v1/characters/:id/generate-image | KEEP-CORE | 角色资产制作，列表/画布/创作页仍调用 |
+| POST /api/v1/characters/:id/sd2-certify | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| POST /api/v1/characters/:id/sd2-certify/refresh | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| POST /api/v1/characters/:id/sd2-voice-upload | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| POST /api/v1/characters/:id/sd2-voice-refresh | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| POST /api/v1/props/:id/generate | KEEP-CORE | 道具资产制作，核心页面仍调用 |
+| POST /api/v1/scenes/generate-image | KEEP-CORE | 场景资产制作，核心页面仍调用 |
+| POST /api/v1/images | KEEP-CORE | 分镜与首尾帧素材/画布流程仍调用 |
+| POST /api/v1/videos | KEEP-CORE | 分镜视频与画布流程仍调用 |
+| POST /api/v1/videos/:id/resume-poll | KEEP-CORE | 已有视频任务恢复入口与兼容性 |
+| POST /api/v1/agent/chat | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+| GET /api/v1/agent/history | DELETE-UNIT | 平台认证/渠道锁或内置工具型助手，非唯一生产链路必需 |
+
+执行记录：批次 5（渠道锁与远端SD2认证功能单元）隔离验证全部通过，详见SLIM_REPORT有效批次。第一批曾回滚的门禁问题现已有用户明确授权，不再阻塞。TTS共用配置代码修改及该批额外一次真实推理也已另获明确批准。

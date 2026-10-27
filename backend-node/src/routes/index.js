@@ -95,10 +95,6 @@ function setupRouter(cfg, db, log) {
   r.get('/ai-configs', aiConfig.list);
   r.post('/ai-configs', aiConfig.create);
   r.post('/ai-configs/test', aiConfig.testConnection);
-  r.post('/ai-configs/jimeng2-list-assets', aiConfig.listJimeng2MaterialAssets);
-  r.post('/ai-configs/model-ark-asset', aiConfig.modelArkAsset);
-  r.get('/ai-configs/vendor-lock', aiConfig.vendorLock);  // 必须在 /:id 之前
-  r.put('/ai-configs/bulk-update-key', aiConfig.bulkUpdateKey);  // 必须在 /:id 之前
   r.get('/ai-configs/:id', aiConfig.get);
   r.put('/ai-configs/:id', aiConfig.update);
   r.delete('/ai-configs/:id', aiConfig.delete);
@@ -173,10 +169,6 @@ function setupRouter(cfg, db, log) {
   r.put('/characters/:id/image-from-library', characters.imageFromLibrary);
   r.post('/characters/:id/add-to-library', characters.addToLibrary);
   r.post('/characters/:id/add-to-material-library', characters.addToMaterialLibrary);
-  r.post('/characters/:id/sd2-certify', characters.sd2Certify);
-  r.post('/characters/:id/sd2-certify/refresh', characters.sd2CertifyRefresh);
-  r.post('/characters/:id/sd2-voice-upload', uploadModule.multerAudioSingle, characters.sd2VoiceUpload);
-  r.post('/characters/:id/sd2-voice-refresh', characters.sd2VoiceRefresh);
   r.post('/characters/:id/extract-from-image', characters.extractFromImage);
   r.post('/characters/:id/extract-anchors', characters.extractAnchors);
 
