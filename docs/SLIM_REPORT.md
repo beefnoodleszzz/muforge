@@ -76,3 +76,19 @@
 | 各大平台中转站配置/飞儿api-ffir.cn.json | D | 5886 |
 
 本批有效删除 11 文件，285925 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch1b。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
+
+## 有效批次 2：Windows平台与外部工具残留
+
+本批已通过真实目录与独立沙箱测试/构建、setup/start/status/health、本机制作/项目列表浏览器、两次PNG及一次MP4 curl导入、分镜绑定/旧Take/来源SHA、FFmpeg合成及完整解码；真实data/.local前后指纹一致。共享Qwen仅只读检测；沙箱已停止并保留。
+
+| 路径 | 变更 | 原文件字节 |
+| --- | --- | --- |
+| backend-node/tools/ffmpeg/ffmpeg.exe | D | 99264000 |
+| openclaw-skill/README.md | D | 3719 |
+| openclaw-skill/SKILL.md | D | 18073 |
+| openclaw-skill/skill.json | D | 1280 |
+| openclaw-skill/tools.json | D | 614 |
+| run_dev.bat | D | 766 |
+| run_dev.ps1 | D | 678 |
+
+本批有效删除 7 文件，99289130 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch2。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
