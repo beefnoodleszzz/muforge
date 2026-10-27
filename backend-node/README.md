@@ -1,3 +1,5 @@
+> 上游历史技术参考：本文含已退役的桌面、渠道与平台接口说明。当前Mac启动、接口保留范围与验收以根README、docs/LOCAL_MAC.md及docs/SLIM_REPORT.md为准；中转配置示例目录已从本分支移除。
+
 # MuForge 后端服务
 
 **Node.js + Express + SQLite · 纯 JavaScript · 无 TypeScript**
