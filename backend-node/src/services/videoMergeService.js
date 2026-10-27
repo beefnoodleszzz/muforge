@@ -92,21 +92,21 @@ async function resolveVideoToLocalPath(videoUrl, baseUrl, storageRoot, tempDir, 
       const localPath = path.join(storageRoot, rel.replace(/\//g, path.sep));
       if (fs.existsSync(localPath)) {
         log.info('Video merge: using local static file', { index, path: localPath });
-        return localPath;
+        return { path: localPath, temporary: false };
       }
     }
   }
   // 2) 已是本地绝对路径且存在
   if (path.isAbsolute(u) && fs.existsSync(u)) {
     log.info('Video merge: using absolute path', { index, path: u });
-    return u;
+    return { path: u, temporary: false };
   }
   // 3) 相对路径（相对 storageRoot）
   if (!u.startsWith('http://') && !u.startsWith('https://')) {
     const localPath = path.join(storageRoot, u.replace(/^\//, '').replace(/\//g, path.sep));
     if (fs.existsSync(localPath)) {
       log.info('Video merge: using relative path', { index, path: localPath });
-      return localPath;
+      return { path: localPath, temporary: false };
     }
   }
   // 4) 远程 URL：下载到 temp
@@ -118,7 +118,7 @@ async function resolveVideoToLocalPath(videoUrl, baseUrl, storageRoot, tempDir, 
     const buf = Buffer.from(await res.arrayBuffer());
     fs.writeFileSync(destPath, buf);
     log.info('Video merge: downloaded to temp', { index, dest: destPath });
-    return destPath;
+    return { path: destPath, temporary: true };
   } catch (e) {
     log.warn('Video merge: download failed', { index, url: u, error: e.message });
     return null;
@@ -223,8 +223,8 @@ async function processVideoMerge(db, log, mergeId, baseUrl) {
     for (let i = 0; i < scenes.length; i++) {
       const local = await resolveVideoToLocalPath(scenes[i].video_url, baseUrl, storageRoot, tempDir, i, log);
       if (!local) throw new Error(`第${i + 1}个镜头视频不可用，禁止缺镜合成`);
-      localPaths.push(local);
-      if (local.startsWith(tempDir)) toCleanup.push(local);
+      localPaths.push(local.path);
+      if (local.temporary) toCleanup.push(local.path);
     }
     const expectedDuration = localPaths.reduce((sum, file) => sum + probeVideoDuration(file), 0);
     const tolerance = Math.max(0.1, expectedDuration * 0.01);

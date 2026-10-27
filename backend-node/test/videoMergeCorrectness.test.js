@@ -94,3 +94,17 @@ test('FFmpeg success with only the first clip is rejected by output duration', a
   await merge.processVideoMerge(db, log, job.merge_id, '/static');
   assertFailed(db, job);
 });
+
+for (const inside of [false,true]) {
+  test(`existing input ${inside ? 'inside' : 'sharing the prefix of'} the download directory is never deleted`, async t => {
+    const { db, dir, job } = setup(t);
+    const parent=path.join(os.tmpdir(),'drama-video-merge');fs.mkdirSync(parent,{recursive:true});
+    const owned=fs.mkdtempSync(inside ? path.join(parent,'existing-source-') : parent+'-backup-');
+    t.after(()=>fs.rmSync(owned,{recursive:true,force:true}));
+    const input=path.join(owned,'source.mp4');fs.copyFileSync(path.join(dir,'one.mp4'),input);
+    db.prepare('UPDATE video_merges SET scenes=? WHERE id=?').run(JSON.stringify([{scene_id:1,video_url:input,duration:.25}]),job.merge_id);
+    await merge.processVideoMerge(db,log,job.merge_id,'/static');
+    assert.equal(merge.getById(db,job.merge_id).status,'completed');
+    assert.ok(fs.existsSync(input),'cleanup must preserve an existing input file');
+  });
+}
