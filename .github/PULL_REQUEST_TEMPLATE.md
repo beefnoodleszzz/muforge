@@ -26,7 +26,8 @@ Closes #
 <!-- 描述你如何测试这些改动 / Describe how you tested these changes -->
 
 - [ ] 本地开发模式测试通过 / Tested in dev mode
-- [ ] 打包 exe 测试通过 / Tested with packaged exe
+- [ ] Mac 本机启动与浏览器流程测试通过 / Tested local Mac startup and browser flows
+- [ ] 如涉及 Electron，已说明安装包验证范围 / Documented Electron package verification when applicable
 - [ ] 相关功能无明显回归 / No obvious regression
 
 ## 截图 / Screenshots

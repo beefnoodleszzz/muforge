@@ -32,7 +32,7 @@ assignees: ''
 | 项目 | 内容 |
 |------|------|
 | 软件版本 / Version | v |
-| 操作系统 / OS | Windows 10 / 11 |
+| 操作系统 / OS | macOS 版本 / macOS version |
 | 运行方式 / Mode | exe 直接运行 / 开发模式 |
 
 ## 日志 / Logs
