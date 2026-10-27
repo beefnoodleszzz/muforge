@@ -4,25 +4,28 @@
  * 将分镜勾选的角色（dramas.characters 表 id）同步到 storyboard_characters（角色库 id），
  * 便于帧提示词与图生参考图与 UI 一致；按角色名匹配本剧或全局角色库。
  */
-function parseDramaCharacterIds(charactersValue) {
-  if (charactersValue === undefined || charactersValue === null) return null;
-  if (Array.isArray(charactersValue)) {
-    return charactersValue
-      .map((x) => Number(typeof x === 'object' && x != null ? x.id : x))
-      .filter((n) => Number.isFinite(n));
+function invalidStoryboard(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
+}
+
+function parseDramaCharacterIds(value) {
+  if (value === undefined) return null;
+  let list = value;
+  if (typeof value === 'string') {
+    try { list = JSON.parse(value); } catch (_) { throw invalidStoryboard('角色列表必须是有效JSON数组'); }
   }
-  if (typeof charactersValue === 'string') {
-    try {
-      const arr = JSON.parse(charactersValue);
-      if (!Array.isArray(arr)) return [];
-      return arr
-        .map((x) => Number(typeof x === 'object' && x != null ? x.id : x))
-        .filter((n) => Number.isFinite(n));
-    } catch (_) {
-      return [];
+  if (!Array.isArray(list)) throw invalidStoryboard('角色列表必须是数组');
+  return list.map(item => {
+    const raw = item && typeof item === 'object' ? item.id : item;
+    if (!['string', 'number'].includes(typeof raw) || String(raw).trim() === '') {
+      throw invalidStoryboard('角色ID必须是正整数');
     }
-  }
-  return [];
+    const id = Number(raw);
+    if (!Number.isSafeInteger(id) || id <= 0) throw invalidStoryboard('角色ID必须是正整数');
+    return id;
+  });
 }
 
 function syncStoryboardCharacterLinks(db, storyboardId, dramaCharacterIds) {
@@ -85,51 +88,65 @@ function createStoryboard(db, log, req) {
 }
 
 function updateStoryboard(db, log, id, req) {
-  const row = db.prepare('SELECT id FROM storyboards WHERE id = ? AND deleted_at IS NULL').get(Number(id));
-  if (!row) return null;
-  const allowed = ['title', 'description', 'location', 'time', 'duration', 'dialogue', 'narration', 'action', 'result', 'atmosphere', 'image_prompt', 'polished_prompt', 'video_prompt', 'scene_id', 'characters', 'composed_image', 'image_url', 'local_path', 'main_panel_idx', 'video_url', 'audio_local_path', 'narration_audio_local_path', 'status', 'shot_type', 'angle', 'angle_h', 'angle_v', 'angle_s', 'movement', 'segment_index', 'segment_title', 'creation_mode', 'universal_segment_text', 'layout_description', 'first_frame_image_id', 'last_frame_image_id', 'last_frame_image_url', 'last_frame_local_path'];
-  const updates = [];
-  const params = [];
-  // 前端可能传 character_ids，与 characters 统一：存为 JSON 字符串
-  const charactersValue = req.character_ids !== undefined ? req.character_ids : req.characters;
-  let parsedDramaCharIdsForSync = null;
-  if (charactersValue !== undefined) {
-    updates.push('characters = ?');
-    const jsonStr = Array.isArray(charactersValue) ? JSON.stringify(charactersValue) : (typeof charactersValue === 'string' ? charactersValue : '[]');
-    params.push(jsonStr);
-    parsedDramaCharIdsForSync = parseDramaCharacterIds(charactersValue) ?? [];
-  }
-  for (const key of allowed) {
-    if (key === 'characters') continue;
-    if (req[key] !== undefined) {
-      updates.push(key + ' = ?');
-      const val = req[key];
-      params.push(val);
+  return db.transaction(() => {
+    const row = db.prepare(`SELECT s.id,e.drama_id FROM storyboards s JOIN episodes e ON e.id=s.episode_id
+      JOIN dramas d ON d.id=e.drama_id WHERE s.id=? AND s.deleted_at IS NULL
+      AND e.deleted_at IS NULL AND d.deleted_at IS NULL`).get(Number(id));
+    if (!row) return null;
+    let duration;
+    if (req.duration !== undefined) {
+      if (!['number', 'string'].includes(typeof req.duration) || String(req.duration).trim() === '') {
+        throw invalidStoryboard('镜头时长必须为1到120秒的有限数值');
+      }
+      duration = Number(req.duration);
+      if (!Number.isFinite(duration) || duration < 1 || duration > 120) {
+        throw invalidStoryboard('镜头时长必须为1到120秒的有限数值');
+      }
     }
-  }
-  if (updates.length === 0 && req.prop_ids === undefined) return getStoryboardById(db, id);
-  if (updates.length > 0) {
-    params.push(new Date().toISOString(), id);
-    db.prepare('UPDATE storyboards SET ' + updates.join(', ') + ', updated_at = ? WHERE id = ?').run(...params);
-  }
-  // 角色勾选变更：只同步 storyboard_characters，不删除 frame_prompts。
-  // 用户手动保存的首/尾帧提示词应保留；图生时 framePromptSanitize 会按当前勾选剔除未出场角色名。
-  if (parsedDramaCharIdsForSync !== null) {
-    try {
+    const allowed = ['title', 'description', 'location', 'time', 'duration', 'dialogue', 'narration', 'action', 'result', 'atmosphere', 'image_prompt', 'polished_prompt', 'video_prompt', 'scene_id', 'characters', 'composed_image', 'image_url', 'local_path', 'main_panel_idx', 'video_url', 'audio_local_path', 'narration_audio_local_path', 'status', 'shot_type', 'angle', 'angle_h', 'angle_v', 'angle_s', 'movement', 'segment_index', 'segment_title', 'creation_mode', 'universal_segment_text', 'layout_description', 'first_frame_image_id', 'last_frame_image_id', 'last_frame_image_url', 'last_frame_local_path'];
+    const updates = [];
+    const params = [];
+    // 前端可能传 character_ids，与 characters 统一：存为 JSON 字符串
+    const charactersValue = req.character_ids !== undefined ? req.character_ids : req.characters;
+    let parsedDramaCharIdsForSync = null;
+    if (charactersValue !== undefined) {
+      parsedDramaCharIdsForSync = parseDramaCharacterIds(charactersValue);
+      const owned = db.prepare('SELECT id FROM characters WHERE id=? AND drama_id=? AND deleted_at IS NULL');
+      for (const cid of parsedDramaCharIdsForSync) {
+        if (!owned.get(cid, row.drama_id)) throw invalidStoryboard('角色不存在、已删除或不属于本剧集');
+      }
+      updates.push('characters = ?');
+      const jsonStr = Array.isArray(charactersValue) ? JSON.stringify(charactersValue) : (typeof charactersValue === 'string' ? charactersValue : '[]');
+      params.push(jsonStr);
+    }
+    for (const key of allowed) {
+      if (key === 'characters') continue;
+      if (req[key] !== undefined) {
+        updates.push(key + ' = ?');
+        const val = key === 'duration' ? duration : req[key];
+        params.push(val);
+      }
+    }
+    if (updates.length === 0 && req.prop_ids === undefined) return getStoryboardById(db, id);
+    if (updates.length > 0) {
+      params.push(new Date().toISOString(), id);
+      db.prepare('UPDATE storyboards SET ' + updates.join(', ') + ', updated_at = ? WHERE id = ?').run(...params);
+    }
+    // 角色勾选变更：只同步 storyboard_characters，不删除 frame_prompts。
+    // 用户手动保存的首/尾帧提示词应保留；图生时 framePromptSanitize 会按当前勾选剔除未出场角色名。
+    if (parsedDramaCharIdsForSync !== null) {
       syncStoryboardCharacterLinks(db, id, parsedDramaCharIdsForSync);
-    } catch (e) {
-      log.warn('syncStoryboardCharacterLinks failed', { id, message: e.message });
     }
-  }
-  // 道具关联：写入 storyboard_props 表
-  if (req.prop_ids !== undefined) {
-    const propIds = Array.isArray(req.prop_ids) ? req.prop_ids : [];
-    db.prepare('DELETE FROM storyboard_props WHERE storyboard_id = ?').run(Number(id));
-    const ins = db.prepare('INSERT OR IGNORE INTO storyboard_props (storyboard_id, prop_id) VALUES (?, ?)');
-    for (const pid of propIds) ins.run(Number(id), Number(pid));
-  }
-  log.info('Storyboard updated', { id });
-  return getStoryboardById(db, id);
+    // 道具关联：写入 storyboard_props 表
+    if (req.prop_ids !== undefined) {
+      const propIds = Array.isArray(req.prop_ids) ? req.prop_ids : [];
+      db.prepare('DELETE FROM storyboard_props WHERE storyboard_id = ?').run(Number(id));
+      const ins = db.prepare('INSERT OR IGNORE INTO storyboard_props (storyboard_id, prop_id) VALUES (?, ?)');
+      for (const pid of propIds) ins.run(Number(id), Number(pid));
+    }
+    log.info('Storyboard updated', { id });
+    return getStoryboardById(db, id);
+  })();
 }
 
 function deleteStoryboard(db, log, id) {

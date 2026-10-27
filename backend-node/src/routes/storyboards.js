@@ -274,6 +274,7 @@ function routes(db, log) {
         if (!sb) return response.notFound(res, '分镜不存在');
         response.success(res, sb);
       } catch (err) {
+        if (err.statusCode === 400) return response.badRequest(res, err.message);
         log.error('storyboards update', { error: err.message });
         response.internalError(res, err.message);
       }
