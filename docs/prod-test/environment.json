@@ -647,7 +647,7 @@
     "tts_requests": 0
   },
   "stage": "0.2",
-  "duration_spec_conflict": "6–8 × 3–5 seconds cannot reach 45–60 seconds; awaiting user choice",
+  "duration_spec_conflict": "Resolved by explicit user choice: 8 x 6 seconds",
   "qwen": {
     "health": {
       "status": "ok",
@@ -674,5 +674,13 @@
     "imagegen",
     "video-editing",
     "kling-cli"
-  ]
+  ],
+  "authorized_spec": {
+    "shots": 8,
+    "seconds_per_shot": 6,
+    "target_seconds": 48,
+    "kling_hard_limit": 10,
+    "generation_tier": "standard/720p",
+    "delivery": "1080x1920 upscaled, disclosed"
+  }
 }

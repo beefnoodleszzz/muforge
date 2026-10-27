@@ -27,9 +27,11 @@ test('image import validates bytes, binds target, records provenance and preserv
   const source = { path: file, size: fs.statSync(file).size };
   const input = { target_type: 'character', target_id: '1', kind: 'image', prompt: '角色设定', style_template: 'character-design-sheet' };
   const one = await importMedia(db,cfg,source,input);
-  const two = await importMedia(db,cfg,source,input);
+  await sharp({ create: { width: 8, height: 8, channels: 3, background: '#aa5522' } }).png().toFile(file);
+  const secondSource = { path: file, size: fs.statSync(file).size };
+  const two = await importMedia(db,cfg,secondSource,input);
   assert.notEqual(one.local_path,two.local_path);
-  assert.equal(one.sha256,two.sha256);
+  assert.notEqual(one.sha256,two.sha256);
   assert.equal(db.prepare('SELECT local_path FROM characters WHERE id=1').get().local_path,two.local_path);
   assert.ok(fs.existsSync(path.join(cfg.storage.local_path,one.local_path)));
   const receipt = db.prepare('SELECT * FROM local_media_imports ORDER BY id DESC LIMIT 1').get();

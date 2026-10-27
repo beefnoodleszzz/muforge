@@ -11,8 +11,12 @@ function ensureTables(db) {
   db.exec(`CREATE TABLE IF NOT EXISTS local_media_imports (
     id INTEGER PRIMARY KEY AUTOINCREMENT, target_type TEXT NOT NULL, target_id INTEGER NOT NULL,
     kind TEXT NOT NULL, provider TEXT NOT NULL, local_path TEXT NOT NULL, sha256 TEXT NOT NULL,
-    prompt TEXT, style_template TEXT, model TEXT, generation_id TEXT, created_at TEXT NOT NULL
+    prompt TEXT, style_template TEXT, model TEXT, generation_id TEXT, created_at TEXT NOT NULL, idempotency_key TEXT
   )`);
+  if (!db.prepare('PRAGMA table_info(local_media_imports)').all().some(c => c.name === 'idempotency_key')) {
+    db.exec('ALTER TABLE local_media_imports ADD COLUMN idempotency_key TEXT');
+  }
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_local_media_import_idempotency ON local_media_imports(idempotency_key) WHERE idempotency_key IS NOT NULL');
 }
 
 async function getStatus(db) {
@@ -78,19 +82,38 @@ async function importMedia(db, cfg, file, input) {
   const root = path.resolve(cfg.storage?.local_path || './data/storage');
   const relative = `external/${target.drama_id}/${kind}_${randomUUID()}.${extension}`;
   const dest = path.join(root, relative);
-  fs.mkdirSync(path.dirname(dest), { recursive: true });
   const hash = createHash('sha256');
   for await (const chunk of fs.createReadStream(file.path)) hash.update(chunk);
   const sha = hash.digest('hex');
   const url = (cfg.storage?.base_url || '/static').replace(/\/$/, '') + '/' + relative;
+  const idempotencyKey = createHash('sha256').update(`${target.drama_id}:${type}:${id}:${kind}:${sha}`).digest('hex');
   const provider = kind === 'image' ? 'image_gen' : 'kling_mcp';
   const now = new Date().toISOString();
-  fs.copyFileSync(file.path, dest, fs.constants.COPYFILE_EXCL);
+  let copied = false;
   try {
     return db.transaction(() => {
+      // The write lock serializes the lookup and creation across processes as well as requests.
+      let existing = db.prepare('SELECT * FROM local_media_imports WHERE idempotency_key=?').get(idempotencyKey);
+      if (!existing) existing = db.prepare(`SELECT * FROM local_media_imports
+        WHERE idempotency_key IS NULL AND target_type=? AND target_id=? AND kind=? AND sha256=? ORDER BY id LIMIT 1`)
+        .get(type, id, kind, sha);
+      if (existing) {
+        const stored = path.join(root, existing.local_path);
+        if (!fs.existsSync(stored) || fs.statSync(stored).size === 0) throw new Error('已有导入素材缺失，不能伪报重复导入成功');
+        if (!existing.idempotency_key) db.prepare('UPDATE local_media_imports SET idempotency_key=? WHERE id=?').run(idempotencyKey, existing.id);
+        return {
+          import_id: existing.id, local_path: existing.local_path,
+          url: (cfg.storage?.base_url || '/static').replace(/\/$/, '') + '/' + existing.local_path,
+          provider: existing.provider, duration, sha256: existing.sha256,
+          idempotency_key: idempotencyKey, duplicate: true,
+        };
+      }
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.copyFileSync(file.path, dest, fs.constants.COPYFILE_EXCL);
+      copied = true;
       const receipt = db.prepare(`INSERT INTO local_media_imports
-        (target_type,target_id,kind,provider,local_path,sha256,prompt,style_template,model,generation_id,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(type,id,kind,provider,relative,sha,input.prompt || '',input.style_template || '',input.model || '',input.generation_id || '',now);
+        (target_type,target_id,kind,provider,local_path,sha256,prompt,style_template,model,generation_id,created_at,idempotency_key)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).run(type,id,kind,provider,relative,sha,input.prompt || '',input.style_template || '',input.model || '',input.generation_id || '',now,idempotencyKey);
       if (kind === 'image') {
         const ids = { storyboard: null, character: null, scene: null };
         if (type in ids) ids[type] = id;
@@ -104,10 +127,10 @@ async function importMedia(db, cfg, file, input) {
           VALUES (?,?,?,?,?,?,?,?,'completed',?,?,?)`).run(target.drama_id,id,provider,input.prompt || '',input.model || '',duration,url,relative,now,now,now);
         db.prepare('UPDATE storyboards SET video_url=?,updated_at=? WHERE id=?').run(url,now,id);
       }
-      return { import_id: Number(receipt.lastInsertRowid), local_path: relative, url, provider, duration, sha256: sha };
-    })();
+      return { import_id: Number(receipt.lastInsertRowid), local_path: relative, url, provider, duration, sha256: sha, idempotency_key: idempotencyKey, duplicate: false };
+    }).immediate();
   } catch (err) {
-    fs.unlinkSync(dest);
+    if (copied) fs.unlinkSync(dest);
     throw err;
   }
 }
