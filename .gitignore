@@ -26,4 +26,9 @@ frontweb-edu
 .worktrees
 build_edu
 node_modules
+frontweb/dist/
+backend-node/data/
+.local/
+.env
+.env.local
 ohos_hap

@@ -1,9 +1,9 @@
 {
-  "name": "localminidrama-desktop",
+  "name": "muforge-desktop",
   "version": "1.2.9",
-  "description": "LocalMiniDrama 本地桌面客户端",
+  "description": "MuForge 本地桌面客户端",
   "main": "main.js",
-  "author": "LocalMiniDrama",
+  "author": "MuForge contributors (upstream: xuanyustudio)",
   "license": "MIT",
   "scripts": {
     "prestart": "node scripts/copy-backend.js",
@@ -40,8 +40,8 @@
     "electron-builder": "^26.15.3"
   },
   "build": {
-    "appId": "com.localminidrama.desktop",
-    "productName": "本地短剧助手",
+    "appId": "com.muforge.desktop",
+    "productName": "MuForge",
     "npmRebuild": false,
     "directories": {
       "output": "release"
@@ -88,12 +88,12 @@
       ],
       "icon": null,
       "signAndEditExecutable": false,
-      "artifactName": "LocalMiniDrama ${version}.${ext}"
+      "artifactName": "MuForge ${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "artifactName": "LocalMiniDrama Setup ${version}.${ext}"
+      "artifactName": "MuForge Setup ${version}.${ext}"
     }
   }
 }

@@ -4,6 +4,12 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/local-production',
+      name: 'local-production',
+      component: () => import('@/views/LocalProduction.vue'),
+      meta: { title: '本机制作' }
+    },
+    {
       path: '/',
       name: 'list',
       component: () => import('@/views/FilmList.vue'),
@@ -50,7 +56,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   if (to.meta.title) {
-    document.title = `${to.meta.title} - LocalMiniDrama`
+    document.title = `${to.meta.title} - MuForge`
   }
   return true
 })

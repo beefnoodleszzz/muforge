@@ -1,10 +1,10 @@
-# LocalMiniDrama 后端服务
+# MuForge 后端服务
 
 **Node.js + Express + SQLite · 纯 JavaScript · 无 TypeScript**
 
 → [项目主页](../README.md) | [快速开始](../docs/quickstart.md) | [AI 配置](../docs/configuration.md) | [版本历史](../docs/changelog.md) | [作者故事](../docs/story.md) | [English](../docs/en.md)
 
-**官方仓库：**
+**上游参考仓库（LocalMiniDrama）：**
 [![GitHub](https://img.shields.io/badge/GitHub-xuanyustudio%2FLocalMiniDrama-181717?logo=github)](https://github.com/xuanyustudio/LocalMiniDrama)
 [![Gitee](https://img.shields.io/badge/Gitee-bi__shang__a%2Flocalminidrama-C71D23?logo=gitee)](https://gitee.com/bi_shang_a/localminidrama)
 [![AtomGit](https://img.shields.io/badge/AtomGit-xuanyustudio%2FLocalMiniDrama-0052D9)](https://atomgit.com/xuanyustudio/LocalMiniDrama)

@@ -216,7 +216,7 @@ export async function initAgent({ db, log, config, dataDir }) {
     agent = new Agent({
       id: 'drama-assistant',
       name: '短剧助手',
-      instructions: '你是本地短剧助手。只操作当前打开的短剧。删除必须调用 delete_item 并等待用户允许。没有出视频、导入导出、道具、新建或删除整部剧的工具。',
+      instructions: '你是幕匠。只操作当前打开的短剧。删除必须调用 delete_item 并等待用户允许。没有出视频、导入导出、道具、新建或删除整部剧的工具。',
       model: () => {
         const resolved = resolveTextModel(appDb);
         if (!resolved.ok) throw new Error(resolved.error);

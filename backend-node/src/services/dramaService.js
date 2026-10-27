@@ -765,8 +765,12 @@ function getVideoUrlForStoryboard(db, storyboardId, baseUrl) {
     return null;
   };
 
-  const sbUrl = sb ? buildUrl(sb.video_url, sb.local_path) : null;
   const vgUrl = vg ? buildUrl(vg.video_url, vg.local_path) : null;
+  // storyboard.local_path 是分镜静帧，不是视频。仅从视频记录解析归档路径。
+  // 用户手动选定其他视频时继续保留其选择；相同视频优先使用归档副本。
+  const sbUrl = sb?.video_url && String(sb.video_url).trim()
+    ? (vg && sb.video_url === vg.video_url ? vgUrl : sb.video_url)
+    : null;
 
   // 策略：比较时间，取最新的
   // 如果只有其中一个有 URL，直接用那个

@@ -700,21 +700,25 @@ input_reference = (图片文件，可选)</pre>
               placeholder="选择或输入声音 ID"
               style="width: 100%"
             >
-              <el-option-group label="MiniMax 女声">
+              <el-option-group v-if="form.provider === 'qwen_local'" label="本机 Qwen3-TTS">
+                <el-option label="audition_01（原创声线 1）" value="audition_01" />
+                <el-option label="audition_02（原创声线 2）" value="audition_02" />
+              </el-option-group>
+              <el-option-group v-if="form.provider !== 'qwen_local'" label="MiniMax 女声">
                 <el-option label="female-shaonv（少女）" value="female-shaonv" />
                 <el-option label="female-chengshu（成熟）" value="female-chengshu" />
                 <el-option label="female-tianmei（甜美）" value="female-tianmei" />
                 <el-option label="audiobook_female_2（有声书）" value="audiobook_female_2" />
               </el-option-group>
-              <el-option-group label="MiniMax 男声">
+              <el-option-group v-if="form.provider !== 'qwen_local'" label="MiniMax 男声">
                 <el-option label="male-qingxin（清新）" value="male-qingxin" />
                 <el-option label="male-zhicheng（知城）" value="male-zhicheng" />
                 <el-option label="audiobook_male_1（有声书）" value="audiobook_male_1" />
               </el-option-group>
             </el-select>
-            <p class="field-tip">MiniMax 必填；不填默认 female-shaonv。</p>
+            <p class="field-tip">{{ form.provider === 'qwen_local' ? '本机已登记的声音 ID；默认 audition_01，无需 API Key。' : 'MiniMax 必填；不填默认 female-shaonv。' }}</p>
           </el-form-item>
-          <el-form-item>
+          <el-form-item v-if="form.provider === 'minimax'">
             <template #label>
               <span class="form-label-tip">Group ID
                 <el-tooltip placement="top" popper-class="cfg-tip-popper">
@@ -1151,7 +1155,7 @@ input_reference = (图片文件，可选)</pre>
           v-else
           type="success"
           title="连接成功"
-          description="文本生成接口已正常响应。"
+          :description="testServiceType === 'tts' ? '语音服务连接检查通过，实际配音请在本机制作页试听。' : '文本生成接口已正常响应。'"
           show-icon
           :closable="false"
         />
@@ -1362,6 +1366,7 @@ const rules = computed(() => ({
     {
       validator: (_rule, v, cb) => {
         const st = form.value.service_type
+        if (st === 'tts' && form.value.provider === 'qwen_local') return cb()
         if (st === 'jimeng2_character_auth') {
           if (v != null && String(v).trim()) return cb()
           return cb(new Error('请填写 Token'))
@@ -1459,6 +1464,7 @@ const providerConfigs = {
     { id: 'agnes', name: 'Agnes AI', models: ['agnes-video-2.5-flash', 'agnes-video-2.5', 'agnes-video-v2.0'] },
   ],
   tts: [
+    { id: 'qwen_local', name: 'Qwen3-TTS（本机 Mac）', models: ['qwen3-tts'] },
     { id: 'minimax', name: 'MiniMax T2A', models: ['speech-02-hd', 'speech-02-turbo'] },
   ],
   jimeng2_character_auth: [
@@ -1500,6 +1506,7 @@ const providerProtocolMap = {
 function getBaseUrlForProvider(provider) {
   if (!provider) return ''
   const p = String(provider).toLowerCase()
+  if (p === 'qwen_local') return 'http://127.0.0.1:8880/v1'
   if (p === 'gemini' || p === 'google') return 'https://generativelanguage.googleapis.com'
   if (p === 'minimax_h3') return 'https://api.minimaxi.com'
   if (p === 'minimax') return 'https://api.minimaxi.com/v1'
@@ -1610,7 +1617,7 @@ const endpointPreviewInfo = computed(() => {
     if (p === 'minimax') {
       submitPath = '/t2a_v2?GroupId={group_id}'
     } else {
-      submitPath = endpoint || '/tts'
+      submitPath = '/audio/speech'
     }
   } else if (service_type === 'image' || service_type === 'storyboard_image') {
     if (endpoint) {
@@ -1749,6 +1756,7 @@ function onProviderChange(providerId) {
   form.value.base_url = getBaseUrlForProvider(providerId)
   form.value.modelText = (p.models || []).join('\n')
   form.value.default_model = (p.models && p.models[0]) || ''
+  if (providerId === 'qwen_local') { form.value.voice_id = 'audition_01'; form.value.api_key = '' }
   if (providerId === 'deepseek') {
     form.value.deepseek_thinking = 'disabled'
     form.value.deepseek_reasoning_effort = 'high'
@@ -1969,7 +1977,7 @@ function openEdit(row) {
 }
 
 async function submit() {
-  await formRef.value?.validate?.().catch(() => {})
+  try { await formRef.value?.validate?.() } catch { return }
   saving.value = true
   try {
     let modelList = parseModelText(form.value.modelText)

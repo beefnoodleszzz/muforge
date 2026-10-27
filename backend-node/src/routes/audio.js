@@ -14,6 +14,13 @@ function routes(db, log, cfg) {
     /** 为单条分镜生成 TTS：对白 → audio_local_path；旁白 → narration_audio_local_path（body.tts_kind === 'narration'） */
     extract: async (req, res) => {
       const { storyboard_id, text, tts_kind } = req.body || {};
+      const voiceId = req.body?.voice_id;
+      if (voiceId != null && (typeof voiceId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(voiceId))) {
+        return response.badRequest(res, '声音 ID 无效');
+      }
+      if (text != null && (typeof text !== 'string' || text.length > 5000)) return response.badRequest(res, '台词须为不超过 5000 字的文本');
+      if (storyboard_id != null && (!Number.isSafeInteger(Number(storyboard_id)) || Number(storyboard_id) <= 0)) return response.badRequest(res, '分镜 ID 无效');
+      if (storyboard_id && !db.prepare('SELECT id FROM storyboards WHERE id = ? AND deleted_at IS NULL').get(Number(storyboard_id))) return response.notFound(res, '分镜不存在');
       if (!text && !storyboard_id) return response.badRequest(res, '请提供 storyboard_id 或 text');
       const kind = String(tts_kind || 'dialogue').toLowerCase() === 'narration' ? 'narration' : 'dialogue';
       let ttsText = text;
@@ -40,6 +47,7 @@ function routes(db, log, cfg) {
           text: ttsText,
           storyboard_id: storyboard_id || null,
           storage_base: getStoragePath(),
+          voice_id: voiceId,
         });
         if (storyboard_id && result.local_path) {
           const now = new Date().toISOString();

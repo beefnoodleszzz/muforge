@@ -261,6 +261,17 @@ function rowToConfig(r) {
 async function testConnection(opts) {
   const base = (opts.base_url || '').replace(/\/$/, '');
   if (!base) throw new Error('base_url 必填');
+  if (opts.provider === 'qwen_local' && opts.service_type === 'tts') {
+    const url = new URL(base);
+    if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || !['http:', 'https:'].includes(url.protocol)) {
+      throw new Error('本地 Qwen3-TTS 必须使用本机服务地址');
+    }
+    const res = await fetch(new URL('/health', url), { signal: AbortSignal.timeout(5000), redirect: 'error' });
+    if (!res.ok) throw new Error(`Qwen3-TTS HTTP ${res.status}`);
+    const health = await res.json();
+    if (health.status !== 'ok' || health.models?.clone !== true) throw new Error('Qwen3-TTS 模型未就绪');
+    return;
+  }
   if (!opts.api_key) throw new Error('api_key 必填');
   const models = flattenModelIds(opts.model);
   const model = remapArkModelId(opts.base_url, models[0] || '');

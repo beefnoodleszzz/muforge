@@ -1,6 +1,8 @@
-# LocalMiniDrama OpenClaw Skill
+> 本目录继承自上游 OpenClaw skill，已随 MuForge 改名；本轮未安装或验收 OpenClaw 集成。当前生成通道使用 Codex image_gen / 可灵 MCP，见[项目 README](../README.md)。
 
-让用户通过 OpenClaw（小龙虾）自然语言控制 LocalMiniDrama，完成 AI 短剧从剧本到成片的全流程。
+# MuForge OpenClaw Skill
+
+让用户通过 OpenClaw（小龙虾）自然语言控制 MuForge，完成 AI 短剧从剧本到成片的全流程。
 
 ## 版本
 
@@ -12,7 +14,7 @@
 
 ```bash
 # 复制到 OpenClaw workspace skills 目录
-cp -r ./openclaw-skill ~/.openclaw/workspace/skills/local-mini-drama
+cp -r ./openclaw-skill ~/.openclaw/workspace/skills/muforge
 ```
 
 ### 方式二：发布到 SkillHub / ClawHub（后续）
@@ -26,24 +28,24 @@ skillhub publish ./openclaw-skill
 ### 云服务器用户
 
 ```bash
-openclaw skill config local-mini-drama --set base_url=http://你的服务器IP:5679
+openclaw skill config muforge --set base_url=http://你的服务器IP:5679
 ```
 
 ### 本地电脑用户（需内网穿透）
 
 ```bash
 # 假设你用 cpolar 绑定了 localhost:5679
-openclaw skill config local-mini-drama --set base_url=https://xxx.cpolar.io
+openclaw skill config muforge --set base_url=https://xxx.cpolar.io
 ```
 
 ### 可选配置
 
 ```bash
 # 默认画面比例（16:9 横屏 / 9:16 竖屏 / 1:1 方形）
-openclaw skill config local-mini-drama --set default_aspect_ratio=9:16
+openclaw skill config muforge --set default_aspect_ratio=9:16
 
 # 默认单个视频片段时长（秒）
-openclaw skill config local-mini-drama --set default_video_duration=5
+openclaw skill config muforge --set default_video_duration=5
 ```
 
 ## 使用方法

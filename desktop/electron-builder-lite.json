@@ -1,6 +1,6 @@
 {
-  "appId": "com.localminidrama.desktop",
-  "productName": "LocalMiniDrama",
+  "appId": "com.muforge.desktop",
+  "productName": "MuForge",
   "npmRebuild": false,
   "directories": {
     "output": "release"

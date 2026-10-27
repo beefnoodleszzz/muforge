@@ -1,0 +1,115 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { randomUUID, createHash } = require('node:crypto');
+const { execFile } = require('node:child_process');
+const { promisify } = require('node:util');
+const { getFfprobePath, hasLocalFfmpeg } = require('../utils/ffmpegPath');
+const runFile = promisify(execFile);
+const targets = { storyboard: 'storyboards', character: 'characters', scene: 'scenes', prop: 'props' };
+
+function ensureTables(db) {
+  db.exec(`CREATE TABLE IF NOT EXISTS local_media_imports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, target_type TEXT NOT NULL, target_id INTEGER NOT NULL,
+    kind TEXT NOT NULL, provider TEXT NOT NULL, local_path TEXT NOT NULL, sha256 TEXT NOT NULL,
+    prompt TEXT, style_template TEXT, model TEXT, generation_id TEXT, created_at TEXT NOT NULL
+  )`);
+}
+
+async function getStatus(db) {
+  const config = require('./aiConfigService').listConfigs(db, 'tts').find(c => c.is_active && c.is_default);
+  let tts = { ready: false, voices: [], message: '未配置本地 Qwen3-TTS' };
+  if (config?.provider === 'qwen_local') {
+    try {
+      await require('./aiConfigService').testConnection({ ...config, service_type: 'tts' });
+      const url = new URL('/v1/voices', config.base_url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000), redirect: 'error' });
+      if (!res.ok) throw new Error(`声音列表 HTTP ${res.status}`);
+      const body = await res.json();
+      if (!Array.isArray(body.voices)) throw new Error('声音列表格式无效');
+      tts = { ready: true, voices: body.voices, message: 'Qwen3-TTS 本地服务可用', voice_id: config.voice_id };
+    } catch (_) { tts.message = 'Qwen3-TTS 未响应或模型未就绪，请启动本地配音服务'; }
+  }
+  return {
+    tts, ffmpeg: hasLocalFfmpeg(),
+    image: { mode: 'codex', tool: 'image_gen', message: '由 Codex 生图，完成后导入绑定素材' },
+    video: { mode: 'codex', tool: 'Kling MCP', message: '由 Codex 通过官方 MCP 提交，下载后导入镜头' },
+    text: { mode: 'codex', message: '剧本与分镜由 Codex 辅助创作或手工录入；内置文本 API 单独配置' },
+  };
+}
+
+function getTarget(db, type, id) {
+  if (!targets[type] || !Number.isSafeInteger(id) || id <= 0) throw new Error('素材绑定目标无效');
+  if (type === 'storyboard') {
+    return db.prepare(`SELECT s.*, e.drama_id FROM storyboards s JOIN episodes e ON s.episode_id=e.id
+      JOIN dramas d ON d.id=e.drama_id WHERE s.id=? AND s.deleted_at IS NULL AND e.deleted_at IS NULL AND d.deleted_at IS NULL`).get(id);
+  }
+  return db.prepare(`SELECT t.* FROM ${targets[type]} t JOIN dramas d ON d.id=t.drama_id
+    WHERE t.id=? AND t.deleted_at IS NULL AND d.deleted_at IS NULL`).get(id);
+}
+
+async function importMedia(db, cfg, file, input) {
+  const type = input.target_type;
+  const id = Number(input.target_id);
+  const kind = input.kind;
+  if (!['image', 'video'].includes(kind)) throw new Error('kind 仅支持 image 或 video');
+  if (kind === 'video' && type !== 'storyboard') throw new Error('视频只能绑定分镜');
+  const target = getTarget(db, type, id);
+  if (!target) throw new Error('绑定目标不存在或已删除');
+  if (!file?.path || !file.size) throw new Error('请选择非空素材文件');
+  for (const key of ['prompt', 'style_template', 'model', 'generation_id']) {
+    if (input[key] != null && (typeof input[key] !== 'string' || input[key].length > (key === 'prompt' ? 20000 : 500))) {
+      throw new Error(`${key} 格式或长度无效`);
+    }
+  }
+  let extension, duration = null;
+  if (kind === 'image') {
+    const image = require('sharp')(file.path, { failOn: 'error', limitInputPixels: 40000000 });
+    const meta = await image.metadata();
+    if (!['png', 'jpeg', 'webp'].includes(meta.format) || !meta.width || !meta.height || (meta.pages || 1) > 1) throw new Error('仅支持有效的 PNG/JPEG/WebP 单帧图片');
+    await image.stats(); // 完整解码，不能只验证文件头。
+    extension = meta.format === 'jpeg' ? 'jpg' : meta.format;
+  } else {
+    const { stdout } = await runFile(getFfprobePath(), ['-v', 'error', '-show_entries', 'format=format_name,duration:stream=codec_type', '-of', 'json', file.path], { timeout: 15000, maxBuffer: 1024 * 1024 });
+    const meta = JSON.parse(stdout);
+    duration = Number(meta.format?.duration);
+    if (!meta.format?.format_name?.includes('mp4') || !meta.streams?.some(s => s.codec_type === 'video') || !(duration > 0)) throw new Error('仅支持可解码的 MP4/MOV 视频');
+    extension = 'mp4';
+  }
+  const root = path.resolve(cfg.storage?.local_path || './data/storage');
+  const relative = `external/${target.drama_id}/${kind}_${randomUUID()}.${extension}`;
+  const dest = path.join(root, relative);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  const hash = createHash('sha256');
+  for await (const chunk of fs.createReadStream(file.path)) hash.update(chunk);
+  const sha = hash.digest('hex');
+  const url = (cfg.storage?.base_url || '/static').replace(/\/$/, '') + '/' + relative;
+  const provider = kind === 'image' ? 'image_gen' : 'kling_mcp';
+  const now = new Date().toISOString();
+  fs.copyFileSync(file.path, dest, fs.constants.COPYFILE_EXCL);
+  try {
+    return db.transaction(() => {
+      const receipt = db.prepare(`INSERT INTO local_media_imports
+        (target_type,target_id,kind,provider,local_path,sha256,prompt,style_template,model,generation_id,created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(type,id,kind,provider,relative,sha,input.prompt || '',input.style_template || '',input.model || '',input.generation_id || '',now);
+      if (kind === 'image') {
+        const ids = { storyboard: null, character: null, scene: null };
+        if (type in ids) ids[type] = id;
+        const image = db.prepare(`INSERT INTO image_generations (drama_id,storyboard_id,character_id,scene_id,provider,prompt,model,frame_type,image_url,local_path,status,completed_at,created_at,updated_at)
+          VALUES (?,?,?,?,?,?,?,?,?,?,'completed',?,?,?)`).run(target.drama_id,ids.storyboard,ids.character,ids.scene,provider,input.prompt || '',input.model || '',type === 'storyboard' ? 'storyboard_first' : null,url,relative,now,now,now);
+        if (type === 'storyboard') {
+          require('./storyboardFrameBinding').bindStoryboardFrameImage(db,id,'storyboard_first',Number(image.lastInsertRowid),url,relative);
+        } else db.prepare(`UPDATE ${targets[type]} SET image_url=?,local_path=?,updated_at=? WHERE id=?`).run(url,relative,now,id);
+      } else {
+        db.prepare(`INSERT INTO video_generations (drama_id,storyboard_id,provider,prompt,model,duration,video_url,local_path,status,completed_at,created_at,updated_at)
+          VALUES (?,?,?,?,?,?,?,?,'completed',?,?,?)`).run(target.drama_id,id,provider,input.prompt || '',input.model || '',duration,url,relative,now,now,now);
+        db.prepare('UPDATE storyboards SET video_url=?,updated_at=? WHERE id=?').run(url,now,id);
+      }
+      return { import_id: Number(receipt.lastInsertRowid), local_path: relative, url, provider, duration, sha256: sha };
+    })();
+  } catch (err) {
+    fs.unlinkSync(dest);
+    throw err;
+  }
+}
+
+module.exports = { ensureTables, getStatus, importMedia };

@@ -1,41 +1,15 @@
-# 安全政策 / Security Policy
+# 幕匠安全说明 / Security
 
-## 支持的版本 / Supported Versions
+MuForge 当前主要面向本机 Mac 使用。服务默认只监听 `127.0.0.1`；不应直接向公网开放。
 
-我们只对最新发布版本提供安全修复。  
-Security fixes are only provided for the latest release.
+## 报告问题
 
-| 版本 / Version | 支持状态 / Support |
-|---------------|-------------------|
-| 最新版 / Latest | ✅ 支持 / Supported |
-| 旧版本 / Older  | ❌ 不支持 / Not supported |
+本项目仓库为 [beefnoodleszzz/muforge](https://github.com/beefnoodleszzz/muforge)。若仓库已启用私密漏洞报告，请通过 GitHub Security 页面提交；不要在公开 Issue 中贴出密钥、私人素材或可被直接利用的敏感细节。当前没有承诺固定的响应时限。
 
-## 报告漏洞 / Reporting a Vulnerability
+## 数据与外部调用
 
-**请勿通过公开 Issue 报告安全漏洞。**  
-**Please do NOT report security vulnerabilities via public Issues.**
+剧集数据库、素材和日志保存在本机。Qwen3-TTS 使用本地模型；image_gen 与可灵生成会调用外部服务，所选参考素材会按实际工具流程发送给对应服务。因此，“本地存储”不代表生成过程完全离线。
 
-### 联系方式 / Contact
+不要把 `backend-node/data/`、`.local/`、密钥或私人配音参考提交到 Git。本机生成服务与共享 Qwen3-TTS 的生命周期分别管理。
 
-如果你发现了安全漏洞，请通过以下方式私下联系我们：  
-If you discover a security vulnerability, please contact us privately:
-
-- **GitHub Security Advisory**：点击仓库页面的 [Security](../../security/advisories/new) 标签 → Report a vulnerability
-- **微信 / WeChat**：通过 README 中的二维码添加作者微信私信
-
-### 响应流程 / Response Process
-
-1. 收到报告后我们会在 **3 个工作日**内确认收到
-2. 评估漏洞严重程度，制定修复计划
-3. 修复完成后发布新版本，在 Changelog 中说明（不披露细节）
-4. 感谢报告者（如果你愿意，会在 Changelog 中致谢）
-
-### 注意事项 / Notes
-
-本项目是**本地离线桌面应用**，不涉及服务端数据传输。用户的 AI API Key 和项目数据均存储在本地，不经过任何第三方服务器。主要安全风险集中在：
-
-- 本地文件读写权限
-- 对接第三方 AI API 时的网络请求
-- 依赖包的已知漏洞
-
-This is a **local desktop application**. No user data or API keys are transmitted through any third-party server. Security risks are mainly related to local file access, outbound AI API requests, and known dependency vulnerabilities.
+上游的原始许可证与历史来源见 [UPSTREAM](docs/UPSTREAM.md)。此文档描述当前使用边界，不代表整个上游代码已经完成安全审计。
