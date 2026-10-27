@@ -26,7 +26,7 @@ node scripts/local.mjs stop
 
 | 环节 | 使用方式 |
 | --- | --- |
-| 剧本与分镜 | Codex 辅助创作或手工录入；内置文本助手需另外配置模型 |
+| 剧本与分镜 | Codex 辅助创作或手工录入；通用 OpenAI 兼容文本接口需另配模型 |
 | 图片 | Codex 使用 `gpt-image-2-style-library` 优化提示词，再调用内置 `image_gen` |
 | 视频 | Codex 调用可灵官方 MCP，按本次授权的预算生成，下载后导入 |
 | 配音 | 本机 Qwen3-TTS，默认地址 `http://127.0.0.1:8880/v1` |
@@ -40,7 +40,7 @@ node scripts/local.mjs stop
 muforge/
 ├── backend-node/       Express、SQLite、素材与合成服务
 ├── frontweb/           Vue 3、Vite、Element Plus 界面
-├── backend-node/migrations/archive/  保留的桌面历史迁移
+│   └── migrations/archive/desktop-initial/  原样保留的7份桌面迁移
 ├── scripts/            Mac 本地启停与环境准备
 ├── docs/               当前文档与上游历史资料
 └── tasks/              当前配置与验收进度
@@ -60,3 +60,9 @@ npm run build
 ```
 
 当前配置与验证进度见 [tasks/todo.md](tasks/todo.md)。MIT 原始版权见 [LICENSE](LICENSE)。
+
+## 瘦身与验证
+
+Electron、Mastra工具型助手、渠道锁和SD2远端认证已退役；已有工程格式、素材库、Take和全部迁移保留。按核心功能保留的6条图片/视频接口仍使用旧客户端兼容实现，尚未重写；本机制作主线使用Codex生成后导入。真实模型/模板/任务信息需要填写并保留制作清单，导入标签本身不是工具实证。
+
+完整删除证据、保留依赖、隔离测试、配音对比和出片质量缺口见 [SLIM_REPORT](docs/SLIM_REPORT.md)。当前在slim/focus本地分支，禁止push与历史改写；既有上游示例/风格素材及文档引用截图未擅自删除。

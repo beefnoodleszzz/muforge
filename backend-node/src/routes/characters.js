@@ -1,4 +1,4 @@
-const fs = require('fs');
+
 const path = require('path');
 const response = require('../response');
 const characterLibraryService = require('../services/characterLibraryService');

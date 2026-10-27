@@ -10,4 +10,4 @@
 
 具体端口、日志、数据位置和排错见 [Mac 配置与运行](LOCAL_MAC.md)。内置文本助手、云端图片/视频 API 需要独立配置；本机路线不自动启用这些外部服务。
 
-Electron 源码保留在 `desktop/`，打包产物名称为 MuForge。Mac 打包与 Windows 安装包需要另行构建和验证；上游发行版与历史资料见 [UPSTREAM](UPSTREAM.md)。
+Electron桌面运行/打包代码已退役，7份历史SQL原样归档在backend-node/migrations/archive/desktop-initial/；上游发行版与历史资料见 [UPSTREAM](UPSTREAM.md)。

@@ -1,6 +1,6 @@
 const response = require('../response');
 const imageService = require('../services/imageService');
-const taskService = require('../services/taskService');
+
 const backgroundExtractionService = require('../services/backgroundExtractionService');
 
 function routes(db, cfg, log) {

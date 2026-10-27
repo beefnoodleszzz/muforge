@@ -229,3 +229,30 @@
 | backend-node/package.json | M | 806 |
 
 本批有效删除 0 文件，0 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch7。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
+
+## 有效批次 8：无引用素材死代码与运行文档
+
+本批已通过真实目录与独立沙箱测试/构建、setup/start/status/health、本机制作/项目列表浏览器、两次PNG及一次MP4 curl导入、分镜绑定/旧Take/来源SHA、FFmpeg合成及完整解码；真实data/.local前后指纹一致。共享Qwen仅只读检测；沙箱已停止并保留。
+
+| 路径 | 变更 | 原文件字节 |
+| --- | --- | --- |
+| AGENTS.md | M | 3910 |
+| README.md | M | 2969 |
+| backend-node/src/app.js | M | 4227 |
+| backend-node/src/routes/characters.js | M | 11528 |
+| backend-node/src/routes/images.js | M | 3234 |
+| backend-node/src/routes/stub.js | M | 7823 |
+| backend-node/src/services/narrationVideoPostProcess.js | D | 10924 |
+| docs/LOCAL_MAC.md | M | 4682 |
+| docs/SLIM_PLAN.md | M | 63718 |
+| docs/quickstart.md | M | 1161 |
+| docs/微信支付.docx | D | 927641 |
+| frontweb/src/composables/filmCreate/libraryMembership.js | D | 2089 |
+| tasks/todo.md | M | 734 |
+| 项目截图/1.png | D | 527785 |
+| 项目截图/2.png | D | 422224 |
+| 项目截图/3.png | D | 776960 |
+| 项目截图/4.png | D | 24543 |
+| 项目截图/5.png | D | 775549 |
+
+本批有效删除 8 文件，3467715 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch8。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
