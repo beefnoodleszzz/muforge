@@ -16,20 +16,12 @@ const { createApp } = require('./app.js');
 const { closeDb } = require('./db/index.js');
 const logger = require('./logger.js');
 
-const path = require('path');
-const { app, config, db } = createApp();
+const { app, config } = createApp();
 const port = Number(process.env.PORT) || config.server?.port || 5679;
 const host = config.server?.host || '0.0.0.0';
 
 let server;
 async function start() {
-  try {
-    const { initAgent } = await import('./mastra/index.mjs');
-    const dataDir = path.resolve(path.dirname(config.database.path));
-    await initAgent({ db, log: logger, config, dataDir });
-  } catch (err) {
-    logger.warn('助手未就绪', { error: err.message });
-  }
   server = app.listen(port, host, () => {
     logger.info('Server starting', { port, host });
     logger.info('Frontend:  http://localhost:' + port);

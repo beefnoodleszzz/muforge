@@ -131,3 +131,40 @@
 | docs/UPSTREAM.md | M | 1701 |
 
 本批有效删除 18 文件，322501 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch3。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
+
+## 有效批次 4b：Mastra工具型助手功能单元
+
+本批已通过真实目录与独立沙箱测试/构建、setup/start/status/health、本机制作/项目列表浏览器、两次PNG及一次MP4 curl导入、分镜绑定/旧Take/来源SHA、FFmpeg合成及完整解码；真实data/.local前后指纹一致。共享Qwen仅只读检测；沙箱已停止并保留。
+
+| 路径 | 变更 | 原文件字节 |
+| --- | --- | --- |
+| backend-node/skills/short-drama/SKILL.md | D | 698 |
+| backend-node/src/mastra/context.mjs | D | 3975 |
+| backend-node/src/mastra/index.mjs | D | 12143 |
+| backend-node/src/mastra/model.mjs | D | 1199 |
+| backend-node/src/mastra/skills.mjs | D | 1108 |
+| backend-node/src/mastra/sse.mjs | D | 1811 |
+| backend-node/src/mastra/tools.mjs | D | 13395 |
+| backend-node/src/routes/agent.js | D | 3366 |
+| backend-node/src/routes/index.js | M | 16849 |
+| backend-node/src/server.js | M | 1729 |
+| backend-node/test/agent-context.test.js | D | 2016 |
+| backend-node/test/agent-model-skills.test.js | D | 4319 |
+| backend-node/test/agent-routes.test.js | D | 3695 |
+| backend-node/test/agent-tools.test.js | D | 10155 |
+| backend-node/test/helpers/agentTestDb.js | D | 5438 |
+| docs/superpowers/plans/2026-10-16-mastra-agent.md | D | 34730 |
+| docs/superpowers/specs/2026-10-16-mastra-agent-design.md | D | 13569 |
+| frontweb/src/App.vue | M | 1136 |
+| frontweb/src/api/agent.js | D | 1427 |
+| frontweb/src/components/AgentDrawer.vue | D | 8159 |
+| frontweb/src/stores/agentContext.js | D | 525 |
+| frontweb/src/utils/agentStream.js | D | 451 |
+| frontweb/src/views/DramaCanvas.vue | M | 35407 |
+| frontweb/src/views/DramaDetail.vue | M | 71957 |
+| frontweb/src/views/FilmCreate.vue | M | 432897 |
+| frontweb/test/agentStream.test.js | D | 510 |
+
+本批有效删除 20 文件，122689 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch4b。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
+
+助手批次首轮回滚说明：batch4 的启动验收发现残留 createAgentHandlers 工厂调用，整批代码已立即恢复并停止沙箱；删除遗漏的工厂调用后，以新的独立clone/空库batch4b完整重验通过。属于已解释并修正的删除悬空引用，没有扩大功能范围。并行只读审查通过。

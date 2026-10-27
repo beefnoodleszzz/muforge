@@ -332,3 +332,5 @@ desktop/package.json启用postinstall copy-backend与electron-builder install-ap
 Electron批次细化：7份SQL原样移动至backend-node/migrations/archive/desktop-initial/，顶层22份正式迁移不改且归档不执行。desktop/.gitignore按硬约束10保留，因此不承诺目录字面消失；删除其余桌面源/打包/发布工作流。只移除agent测试中针对退役copy-backend脚本的2行断言，其余skill断言保留至助手功能单元退役。
 
 执行记录：批次 3（Electron退休与历史迁移归档）隔离验证全部通过，详见SLIM_REPORT有效批次。第一批曾回滚的门禁问题现已有用户明确授权，不再阻塞。TTS共用配置代码修改及该批额外一次真实推理也已另获明确批准。
+
+执行记录：批次 4b（Mastra工具型助手功能单元）隔离验证全部通过，详见SLIM_REPORT有效批次。第一批曾回滚的门禁问题现已有用户明确授权，不再阻塞。TTS共用配置代码修改及该批额外一次真实推理也已另获明确批准。

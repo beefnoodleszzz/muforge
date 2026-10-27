@@ -2629,8 +2629,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, reactive, nextTick } from 'vue'
-import { useAgentContext } from '@/stores/agentContext'
+import { ref, computed, onMounted, watch, reactive, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -8096,22 +8095,6 @@ async function runRepairPipeline() {
   }
 }
 
-
-const agentContext = useAgentContext()
-watch(currentEpisode, (episode) => {
-  agentContext.setEpisodeId(episode?.id ?? null)
-}, { immediate: true })
-
-function onAgentChanged(event) {
-  if (Number(event.detail?.dramaId) !== Number(dramaId.value)) return
-  loadDrama()
-}
-window.addEventListener('lmd-agent-changed', onAgentChanged)
-
-onBeforeUnmount(() => {
-  window.removeEventListener('lmd-agent-changed', onAgentChanged)
-  agentContext.clear()
-})
 
 function applyRouteToStore() {
   const id = route.params.id
