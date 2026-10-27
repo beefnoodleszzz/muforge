@@ -10,13 +10,7 @@ export const characterAPI = {
   generatePrompt(characterId, model, style) {
     return request.post(`/characters/${characterId}/generate-prompt`, { model, style })
   },
-  batchGenerateImages(characterIds, model, style) {
-    return request.post('/characters/batch-generate-images', {
-      character_ids: characterIds.map(String),
-      model,
-      style
-    })
-  },
+
   update(characterId, data) {
     return request.put(`/characters/${characterId}`, data)
   },

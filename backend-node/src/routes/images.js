@@ -45,16 +45,7 @@ function routes(db, cfg, log) {
         response.internalError(res, err.message);
       }
     },
-    scene: (req, res) => {
-      try {
-        const task = taskService.createTask(db, log, 'image_generation', req.params.scene_id);
-        setTimeout(() => taskService.updateTaskResult(db, task.id, []), 100);
-        response.success(res, { task_id: task.id });
-      } catch (err) {
-        log.error('images scene', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
+
     episodeBackgrounds: (req, res) => {
       try {
         const list = imageService.getBackgroundsForEpisode(db, req.params.episode_id);
@@ -85,14 +76,7 @@ function routes(db, cfg, log) {
         response.internalError(res, err.message || '任务创建失败');
       }
     },
-    episodeBatch: (req, res) => {
-      try {
-        response.success(res, []);
-      } catch (err) {
-        log.error('images episode batch', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
+
     upload: (req, res) => {
       try {
         const body = req.body || {};

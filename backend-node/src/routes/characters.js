@@ -63,37 +63,7 @@ function routes(db, cfg, log, uploadService) {
         response.internalError(res, err.message);
       }
     },
-    batchGenerateImages: (req, res) => {
-      try {
-        const body = req.body || {};
-        const characterIds = body.character_ids;
-        log.info('batch-generate-images request', { character_ids: characterIds, model: body.model, style: body.style });
-        if (!Array.isArray(characterIds) || characterIds.length === 0) {
-          return response.badRequest(res, 'character_ids 不能为空');
-        }
-        if (characterIds.length > 10) {
-          return response.badRequest(res, '单次最多生成10个角色');
-        }
-        const out = characterLibraryService.batchGenerateCharacterImages(
-          db,
-          log,
-          cfg,
-          characterIds,
-          body.model,
-          body.style
-        );
-        if (!out.ok) {
-          return response.badRequest(res, out.error);
-        }
-        response.success(res, {
-          message: '批量生成任务已提交',
-          count: out.count,
-        });
-      } catch (err) {
-        log.error('characters batch-generate-images', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
+
     generateImage: async (req, res) => {
       try {
         const body = req.body || {};
@@ -249,23 +219,7 @@ function routes(db, cfg, log, uploadService) {
       });
       response.success(res, { message: '锚点提炼已启动，请稍后刷新查看' });
     },
-    generateFourViewImage: async (req, res) => {
-      try {
-        const body = req.body || {};
-        const modelName = body.model_name || body.model || undefined;
-        const style = body.style || undefined;
-        const out = await characterLibraryService.generateCharacterFourViewImage(db, log, cfg, req.params.id, modelName, style);
-        if (!out.ok) {
-          if (out.error === 'character not found') return response.notFound(res, '角色不存在');
-          if (out.error === 'unauthorized') return response.notFound(res, '剧集不存在或无权限');
-          return response.badRequest(res, out.error);
-        }
-        response.success(res, { message: '四视图生成任务已提交', image_generation: out.image_generation });
-      } catch (err) {
-        log.error('characters generate-four-view-image', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
+
     generatePrompt: async (req, res) => {
       try {
         const body = req.body || {};

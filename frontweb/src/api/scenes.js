@@ -36,8 +36,5 @@ export const sceneAPI = {
   },
   putRefImage(sceneId, refImagePath) {
     return request.put(`/scenes/${sceneId}`, { ref_image: refImagePath ?? null })
-  },
-  generateFourViewImage(sceneId, model, style) {
-    return request.post(`/scenes/${sceneId}/generate-four-view-image`, { model, style })
   }
 }

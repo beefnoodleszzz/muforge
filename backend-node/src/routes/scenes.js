@@ -151,23 +151,7 @@ function routes(db, log, cfg) {
         response.internalError(res, err.message);
       }
     },
-    generateFourViewImage: async (req, res) => {
-      try {
-        const body = req.body || {};
-        const modelName = body.model_name || body.model || undefined;
-        const style = body.style || undefined;
-        const out = await sceneService.generateSceneFourViewImage(db, log, cfg, req.params.scene_id, modelName, style);
-        if (!out.ok) {
-          if (out.error === 'scene not found') return response.notFound(res, '场景不存在');
-          if (out.error === 'unauthorized') return response.notFound(res, '剧集不存在或无权限');
-          return response.badRequest(res, out.error);
-        }
-        response.success(res, { message: '场景四视图生成任务已提交', image_generation: out.image_generation });
-      } catch (err) {
-        log.error('scenes generate-four-view-image', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
+
   };
 }
 

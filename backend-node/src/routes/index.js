@@ -160,9 +160,7 @@ function setupRouter(cfg, db, log) {
   r.get('/characters/:id', characters.getOne);
   r.put('/characters/:id', characters.update);
   r.delete('/characters/:id', characters.delete);
-  r.post('/characters/batch-generate-images', characters.batchGenerateImages);
   r.post('/characters/:id/generate-image', characters.generateImage);
-  r.post('/characters/:id/generate-four-view-image', characters.generateFourViewImage);
   r.post('/characters/:id/generate-prompt', characters.generatePrompt);
   r.post('/characters/:id/upload-image', uploadModule.multerSingle, characters.uploadImage);
   r.put('/characters/:id/image', characters.putImage);
@@ -225,7 +223,6 @@ function setupRouter(cfg, db, log) {
   r.delete('/scenes/:scene_id', scenes.delete);
   r.post('/scenes/generate-image', scenes.generateImage);
   r.post('/scenes', scenes.create);
-  r.post('/scenes/:scene_id/generate-four-view-image', scenes.generateFourViewImage);
   r.post('/scenes/:scene_id/add-to-library', scenes.addToLibrary);
   r.post('/scenes/:scene_id/add-to-material-library', scenes.addToMaterialLibrary);
   r.post('/scenes/:scene_id/extract-from-image', scenes.extractFromImage);
@@ -235,8 +232,6 @@ function setupRouter(cfg, db, log) {
   r.post('/images', images.create);
   r.get('/images/episode/:episode_id/backgrounds', images.episodeBackgrounds);
   r.post('/images/episode/:episode_id/backgrounds/extract', images.episodeBackgroundsExtract);
-  r.post('/images/episode/:episode_id/batch', images.episodeBatch);
-  r.post('/images/scene/:scene_id', images.scene);
   r.post('/images/upload', images.upload);
   r.get('/images/:id', images.get);
   r.delete('/images/:id', images.delete);
@@ -244,8 +239,6 @@ function setupRouter(cfg, db, log) {
   // ---------- videos ----------
   r.get('/videos', videos.list);
   r.post('/videos', videos.create);
-  r.post('/videos/image/:image_gen_id', videos.fromImage);
-  r.post('/videos/episode/:episode_id/batch', videos.episodeBatch);
   r.post('/videos/:id/resume-poll', videos.resumePoll);
   r.get('/videos/:id', videos.get);
   r.delete('/videos/:id', videos.delete);

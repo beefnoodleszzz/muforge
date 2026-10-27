@@ -110,23 +110,8 @@ function routes(db, log) {
         response.internalError(res, err.message);
       }
     },
-    fromImage: (req, res) => {
-      try {
-        const task = taskService.createTask(db, log, 'video_generation', req.params.image_gen_id);
-        response.success(res, { task_id: task.id });
-      } catch (err) {
-        log.error('videos fromImage', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
-    episodeBatch: (req, res) => {
-      try {
-        response.success(res, []);
-      } catch (err) {
-        log.error('videos episode batch', { error: err.message });
-        response.internalError(res, err.message);
-      }
-    },
+
+
   };
 }
 
