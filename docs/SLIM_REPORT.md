@@ -92,3 +92,42 @@
 | run_dev.ps1 | D | 678 |
 
 本批有效删除 7 文件，99289130 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch2。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
+
+## 有效批次 3：Electron退休与历史迁移归档
+
+本批已通过真实目录与独立沙箱测试/构建、setup/start/status/health、本机制作/项目列表浏览器、两次PNG及一次MP4 curl导入、分镜绑定/旧Take/来源SHA、FFmpeg合成及完整解码；真实data/.local前后指纹一致。共享Qwen仅只读检测；沙箱已停止并保留。
+
+| 路径 | 变更 | 原文件字节 |
+| --- | --- | --- |
+| .github/workflows/release.yml | D | 2078 |
+| README.md | M | 2971 |
+| backend-node/migrations/archive/README.md | A | 0 |
+| desktop/scripts/initial-migrations/01_init.sql → backend-node/migrations/archive/desktop-initial/01_init.sql | R100 | 6174 |
+| desktop/scripts/initial-migrations/02_add_default_model.sql → backend-node/migrations/archive/desktop-initial/02_add_default_model.sql | R100 | 139 |
+| desktop/scripts/initial-migrations/03_add_props_episode_id.sql → backend-node/migrations/archive/desktop-initial/03_add_props_episode_id.sql | R100 | 143 |
+| desktop/scripts/initial-migrations/04_async_tasks_columns.sql → backend-node/migrations/archive/desktop-initial/04_async_tasks_columns.sql | R100 | 239 |
+| desktop/scripts/initial-migrations/05_add_image_generations_columns.sql → backend-node/migrations/archive/desktop-initial/05_add_image_generations_columns.sql | R100 | 180 |
+| desktop/scripts/initial-migrations/06_add_characters_local_path.sql → backend-node/migrations/archive/desktop-initial/06_add_characters_local_path.sql | R100 | 96 |
+| desktop/scripts/initial-migrations/07_add_scenes_image_columns.sql → backend-node/migrations/archive/desktop-initial/07_add_scenes_image_columns.sql | R100 | 146 |
+| backend-node/test/agent-routes.test.js | M | 3836 |
+| desktop/.npmrc | D | 136 |
+| desktop/README.md | D | 5924 |
+| desktop/dist-cn.bat | D | 46 |
+| desktop/dist-mac.sh | D | 1457 |
+| desktop/dist/builder-debug.yml | D | 6029 |
+| desktop/dist/builder-effective-config.yaml | D | 131 |
+| desktop/electron-builder-lite.json | D | 963 |
+| desktop/electron-builder-mac-lite.json | D | 829 |
+| desktop/electron-builder-mac.json | D | 920 |
+| desktop/ffmpeg-mac/README.txt | D | 436 |
+| desktop/main.js | D | 10725 |
+| desktop/package-lock.json | D | 284503 |
+| desktop/package.json | D | 2695 |
+| desktop/scripts/clean-win-unpacked.js | D | 1841 |
+| desktop/scripts/copy-backend.js | D | 1388 |
+| desktop/scripts/copy-front.js | D | 515 |
+| desktop/scripts/dist-cn.js | D | 1885 |
+| docs/SLIM_PLAN.md | M | 59517 |
+| docs/UPSTREAM.md | M | 1701 |
+
+本批有效删除 18 文件，322501 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch3。前文回滚尝试仅作过程记录，不影响本次独立重验结果。

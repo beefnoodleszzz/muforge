@@ -1,6 +1,0 @@
-directories:
-  output: dist
-  buildResources: build
-artifactName: MuForge-${buildVersion}.${ext}
-files: []
-electronVersion: 28.3.3

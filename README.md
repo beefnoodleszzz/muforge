@@ -40,13 +40,13 @@ node scripts/local.mjs stop
 muforge/
 ├── backend-node/       Express、SQLite、素材与合成服务
 ├── frontweb/           Vue 3、Vite、Element Plus 界面
-├── desktop/            Electron 打包源代码
+├── backend-node/migrations/archive/  保留的桌面历史迁移
 ├── scripts/            Mac 本地启停与环境准备
 ├── docs/               当前文档与上游历史资料
 └── tasks/              当前配置与验收进度
 ```
 
-数据库和私有生产素材保存在 `backend-node/data/`；运行日志在 `.local/`。这些目录已排除出 Git。停止幕匠不会停止共享的 Qwen3-TTS 服务。Electron 打包配置已使用 MuForge 名称，但本轮以 Mac 本地 Web 服务为运行目标，安装包需另行构建验证。
+数据库和私有生产素材保存在 `backend-node/data/`；运行日志在 `.local/`。这些目录已排除出 Git。停止幕匠不会停止共享的 Qwen3-TTS 服务。Electron 运行与打包端已退役，历史迁移原样归档；desktop/ 仅保留不可删除的忽略规则。
 
 ## 开发验证
 
