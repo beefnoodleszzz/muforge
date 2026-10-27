@@ -184,130 +184,104 @@ function runFfmpegConcat(localPaths, outputPath, log) {
   }
 }
 
-/**
- * 异步处理视频合成：优先使用 ffmpeg 真正合并多段视频；失败或无 ffmpeg 时用首段作为 merged_url。
- */
+/** Probe the actual artifact instead of treating an exit code or input URL as a movie. */
+function probeVideoDuration(file) {
+  if (!fs.existsSync(file) || fs.statSync(file).size === 0) throw new Error('合成输出文件不存在或为空');
+  const { spawnSync } = require('child_process');
+  const result = spawnSync(getFfprobePath(), [
+    '-v', 'error', '-show_entries', 'format=duration:stream=codec_type', '-of', 'json', file,
+  ], { encoding: 'utf8', timeout: 15000, maxBuffer: 1024 * 1024 });
+  if (result.error || result.status !== 0) throw new Error('无法验证视频输出');
+  const meta = JSON.parse(result.stdout);
+  const duration = Number(meta.format?.duration);
+  if (!(duration > 0) || !Number.isFinite(duration) || !meta.streams?.some(x => x.codec_type === 'video')) {
+    throw new Error('输出缺少有效视频轨道或时长');
+  }
+  return duration;
+}
+
+/** All requested clips and postprocessing must succeed. There is no implicit degradation. */
 async function processVideoMerge(db, log, mergeId, baseUrl) {
   const r = db.prepare('SELECT * FROM video_merges WHERE id = ? AND deleted_at IS NULL').get(mergeId);
   if (!r) return;
-  const taskId = r.task_id;
-  const episodeId = r.episode_id;
-  let scenes = [];
-  try {
-    scenes = JSON.parse(r.scenes || '[]');
-  } catch (_) {
-    log.warn('video merge parse scenes failed', { merge_id: mergeId });
-  }
-  const now = new Date().toISOString();
-  db.prepare('UPDATE video_merges SET status = ? WHERE id = ?').run('processing', mergeId);
   const taskService = require('./taskService');
-  if (scenes.length === 0) {
-    db.prepare('UPDATE video_merges SET status = ?, error_msg = ? WHERE id = ?').run('failed', '无有效视频片段', mergeId);
-    if (taskId) taskService.updateTaskError(db, taskId, '无有效视频片段');
-    return;
-  }
-  const first = scenes[0];
-  const mergedUrlFallback = first && first.video_url ? first.video_url : null;
-  if (!mergedUrlFallback) {
-    db.prepare('UPDATE video_merges SET status = ?, error_msg = ? WHERE id = ?').run('failed', '首段无视频地址', mergeId);
-    if (taskId) taskService.updateTaskError(db, taskId, '首段无视频地址');
-    return;
-  }
-
-  const totalDuration = scenes.reduce((sum, s) => sum + (Number(s.duration) || 0), 0);
-  const storageRoot = getStorageRoot();
-  const tempDir = path.join(require('os').tmpdir(), 'drama-video-merge');
-  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-
-  const localPaths = [];
+  const episodeId = r.episode_id;
   const toCleanup = [];
-  for (let i = 0; i < scenes.length; i++) {
-    const p = await resolveVideoToLocalPath(
-      scenes[i].video_url,
-      baseUrl,
-      storageRoot,
-      tempDir,
-      i,
-      log
-    );
-    if (p) {
-      localPaths.push(p);
-      if (p.startsWith(tempDir)) toCleanup.push(p);
+  let outputPath = null;
+  let postOutputPath = null;
+  db.prepare('UPDATE video_merges SET status = ? WHERE id = ?').run('processing', mergeId);
+  try {
+    const scenes = JSON.parse(r.scenes || '[]');
+    if (!Array.isArray(scenes) || scenes.length === 0 || scenes.length > 100) {
+      throw new Error('视频片段数量必须为1到100');
     }
-  }
-
-  const ffmpegAvailable = hasLocalFfmpeg();
-  log.info('Video merge: ffmpeg check', {
-    merge_id: mergeId,
-    has_ffmpeg: ffmpegAvailable,
-    ffmpeg_path: getFfmpegPath(),
-    local_video_count: localPaths.length,
-    cwd: process.cwd(),
-  });
-
-  let mergedRelativePath = null;
-  if (localPaths.length > 0 && ffmpegAvailable && localPaths.length <= 100) {
+    if (!hasLocalFfmpeg()) throw new Error('FFmpeg不可用，不能合成');
+    const storageRoot = getStorageRoot();
+    const tempDir = path.join(require('os').tmpdir(), 'drama-video-merge');
+    fs.mkdirSync(tempDir, { recursive: true });
+    const localPaths = [];
+    for (let i = 0; i < scenes.length; i++) {
+      const local = await resolveVideoToLocalPath(scenes[i].video_url, baseUrl, storageRoot, tempDir, i, log);
+      if (!local) throw new Error(`第${i + 1}个镜头视频不可用，禁止缺镜合成`);
+      localPaths.push(local);
+      if (local.startsWith(tempDir)) toCleanup.push(local);
+    }
+    const expectedDuration = localPaths.reduce((sum, file) => sum + probeVideoDuration(file), 0);
+    const tolerance = Math.max(0.1, expectedDuration * 0.01);
     const projectSubdir = storageLayout.getProjectStorageSubdir(db, r.drama_id);
     const sub = projectSubdir && String(projectSubdir).trim();
-    const mergedDir = sub
-      ? path.join(storageRoot, sub, 'videos', 'merged')
-      : path.join(storageRoot, 'videos', 'merged');
-    if (!fs.existsSync(mergedDir)) fs.mkdirSync(mergedDir, { recursive: true });
-    const outputFileName = `merged_${Date.now()}.mp4`;
-    const outputPath = path.join(mergedDir, outputFileName);
-    const ok = runFfmpegConcat(localPaths, outputPath, log);
-    if (ok && fs.existsSync(outputPath)) {
-      mergedRelativePath = sub
-        ? path.join(sub, 'videos', 'merged', outputFileName).replace(/\\/g, '/')
-        : path.join('videos', 'merged', outputFileName).replace(/\\/g, '/');
-      log.info('Video merge completed (ffmpeg)', { merge_id: mergeId, episode_id: episodeId, output: mergedRelativePath });
-    }
-  }
-
-  let mergeOpts = {};
-  try {
-    mergeOpts = JSON.parse(r.merge_options || '{}');
-  } catch (_) {
-    mergeOpts = {};
-  }
-  const postNeed =
-    !!mergeOpts.burn_narration_subtitles
-    || !!mergeOpts.burn_dialogue_audio
-    || !!(mergeOpts.watermark_text && String(mergeOpts.watermark_text).trim());
-  if (mergedRelativePath && ffmpegAvailable && postNeed) {
-    const mergedAbsPath = path.join(storageRoot, mergedRelativePath.replace(/\//g, path.sep));
-    if (fs.existsSync(mergedAbsPath)) {
-      const mergedPP = require('./mergedEpisodePostProcess');
-      const post = await mergedPP.runMergedEpisodePostProcess(db, log, {
-        mergedAbsPath,
-        storageRoot,
-        scenes,
-        episodeId,
-        mergeOpts,
+    const mergedDir = sub ? path.join(storageRoot, sub, 'videos', 'merged') : path.join(storageRoot, 'videos', 'merged');
+    fs.mkdirSync(mergedDir, { recursive: true });
+    const outputFileName = `merged_${mergeId}_${Date.now()}.mp4`;
+    outputPath = path.join(mergedDir, outputFileName);
+    if (!runFfmpegConcat(localPaths, outputPath, log)) throw new Error('FFmpeg合成失败，禁止首片段兜底');
+    let duration = probeVideoDuration(outputPath);
+    if (Math.abs(duration - expectedDuration) > tolerance) throw new Error('合成输出时长不完整，禁止发布部分镜头');
+    let relativePath = path.relative(storageRoot, outputPath).replace(/\\/g, '/');
+    const mergeOpts = JSON.parse(r.merge_options || '{}');
+    const postNeed = !!mergeOpts.burn_narration_subtitles || !!mergeOpts.burn_dialogue_audio
+      || !!(mergeOpts.watermark_text && String(mergeOpts.watermark_text).trim());
+    if (postNeed) {
+      const post = await require('./mergedEpisodePostProcess').runMergedEpisodePostProcess(db, log, {
+        mergedAbsPath: outputPath, storageRoot, scenes, episodeId, mergeOpts,
       });
-      if (post.ok && post.relativePath) {
-        mergedRelativePath = post.relativePath;
-        log.info('Video merge: merged episode post-process', { merge_id: mergeId, out: mergedRelativePath });
-      } else if (post.error && post.error !== 'NO_POST_OPTS') {
-        log.warn('Video merge: post-process skipped', { merge_id: mergeId, err: post.error });
+      if (!post?.ok || !post.relativePath) throw new Error('合成后处理失败：' + (post?.error || '未返回成片'));
+      const candidate = path.resolve(storageRoot, post.relativePath);
+      if (!candidate.startsWith(path.resolve(storageRoot) + path.sep)
+          || candidate === outputPath || localPaths.some(file => path.resolve(file) === candidate)) {
+        throw new Error('后处理必须返回独立且位于存储目录的成片');
       }
+      postOutputPath = candidate;
+      duration = probeVideoDuration(postOutputPath);
+      if (Math.abs(duration - expectedDuration) > tolerance) throw new Error('后处理成片时长不完整');
+      relativePath = post.relativePath;
     }
-  }
-
-  for (const p of toCleanup) {
-    try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {}
-  }
-
-  const finalMergedUrl = mergedRelativePath || mergedUrlFallback;
-  db.prepare(
-    'UPDATE video_merges SET status = ?, merged_url = ?, duration = ?, completed_at = ?, error_msg = ? WHERE id = ?'
-  ).run('completed', finalMergedUrl, Math.round(totalDuration) || null, now, null, mergeId);
-  db.prepare('UPDATE episodes SET video_url = ?, status = ?, updated_at = ? WHERE id = ?').run(finalMergedUrl, 'completed', now, episodeId);
-  if (taskId) {
-    taskService.updateTaskResult(db, taskId, { merge_id: mergeId, video_url: finalMergedUrl, duration: Math.round(totalDuration) });
-  }
-  if (!mergedRelativePath) {
-    log.info('Video merge completed (first-clip fallback)', { merge_id: mergeId, episode_id: episodeId });
+    const now = new Date().toISOString();
+    db.transaction(() => {
+      db.prepare('UPDATE video_merges SET status=?, merged_url=?, duration=?, completed_at=?, error_msg=NULL WHERE id=?')
+        .run('completed', relativePath, duration, now, mergeId);
+      db.prepare('UPDATE episodes SET video_url=?, status=?, updated_at=? WHERE id=?')
+        .run(relativePath, 'completed', now, episodeId);
+      if (r.task_id) taskService.updateTaskResult(db, r.task_id, { merge_id: mergeId, video_url: relativePath, duration });
+    })();
+    log.info('Video merge completed', { merge_id: mergeId, episode_id: episodeId });
+  } catch (error) {
+    const message = '视频合成失败：' + (error.message || '未知错误');
+    const now = new Date().toISOString();
+    db.transaction(() => {
+      db.prepare('UPDATE video_merges SET status=?, merged_url=NULL, duration=NULL, error_msg=?, completed_at=? WHERE id=?')
+        .run('failed', message, now, mergeId);
+      db.prepare('UPDATE episodes SET video_url=NULL, status=?, updated_at=? WHERE id=?').run('failed', now, episodeId);
+      if (r.task_id) taskService.updateTaskError(db, r.task_id, message);
+    })();
+    for (const file of [outputPath].filter(Boolean)) {
+      try { if (fs.existsSync(file)) fs.unlinkSync(file); } catch (_) {}
+    }
+    log.warn('Video merge failed', { merge_id: mergeId, error: message });
+  } finally {
+    for (const file of toCleanup) {
+      try { if (fs.existsSync(file)) fs.unlinkSync(file); } catch (_) {}
+    }
   }
 }
 

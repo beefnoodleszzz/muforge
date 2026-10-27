@@ -1,0 +1,678 @@
+{
+  "checked_at": "2026-10-27T10:21:01.185Z",
+  "image_gen": {
+    "registered": true,
+    "read_only_probe_available": false,
+    "generation_calls": 0
+  },
+  "kling": {
+    "authenticated": true,
+    "auth_mode": "oauth",
+    "mcp_version": "1.3.3",
+    "server_notice": "Authenticated via OAuth; identity from access token subject. The MCP tool list has been updated. New tools are available; please reconnect the Kling MCP server or restart your host app.",
+    "available_tool_names": [
+      "element_create",
+      "element_delete",
+      "element_get",
+      "element_list",
+      "element_update",
+      "feedback",
+      "file_upload",
+      "image_to_image",
+      "image_to_video",
+      "logout",
+      "motion_control",
+      "motion_library_list",
+      "omni_ref_video",
+      "query_membership_and_credits",
+      "query_tasks",
+      "text_to_image",
+      "text_to_video",
+      "who_am_i"
+    ],
+    "image_to_video_models": [
+      {
+        "model": "kling-video-v2_5",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "5",
+            "allowed_values": [
+              "5",
+              "10"
+            ],
+            "description": "Video duration in seconds, support only 5s or 10s."
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "1080p",
+            "allowed_values": [
+              "720p",
+              "1080p"
+            ],
+            "description": "Output resolution tier. 720p = std, 1080p = pro"
+          },
+          {
+            "name": "enable_audio",
+            "required": false,
+            "default": "true",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          },
+          {
+            "name": "enable_asmr",
+            "required": false,
+            "default": "false",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          },
+          {
+            "name": "audio_prompt",
+            "required": false
+          },
+          {
+            "name": "music_prompt",
+            "required": false
+          }
+        ],
+        "inputs": [
+          {
+            "name": "first_image",
+            "required": true
+          },
+          {
+            "name": "tail_image",
+            "required": false
+          }
+        ]
+      },
+      {
+        "model": "kling-video-v2_6",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "5",
+            "allowed_values": [
+              "5",
+              "10"
+            ],
+            "description": "Video duration in seconds. only support 5s or 10s"
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "1080p",
+            "allowed_values": [
+              "720p",
+              "1080p"
+            ],
+            "description": "Quality tier. 720p=std, 1080p=pro. Tail image requires 1080p."
+          },
+          {
+            "name": "enable_audio",
+            "required": false,
+            "default": "true",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          }
+        ],
+        "inputs": [
+          {
+            "name": "first_image",
+            "required": true
+          },
+          {
+            "name": "tail_image",
+            "required": false
+          }
+        ]
+      },
+      {
+        "model": "kling-video-o1",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "5",
+            "allowed_values": [
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10"
+            ],
+            "description": "Video duration in seconds, support 3s to 10s."
+          },
+          {
+            "name": "aspect_ratio",
+            "required": false,
+            "default": "16:9",
+            "allowed_values": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ]
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "1080p",
+            "allowed_values": [
+              "720p",
+              "1080p"
+            ],
+            "description": "Quality tier (member: up to 1080p)."
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "elements",
+            "required": false
+          }
+        ],
+        "inputs": [
+          {
+            "name": "image_1",
+            "required": true
+          },
+          {
+            "name": "image_2",
+            "required": false
+          },
+          {
+            "name": "image_3",
+            "required": false
+          },
+          {
+            "name": "image_4",
+            "required": false
+          },
+          {
+            "name": "image_5",
+            "required": false
+          },
+          {
+            "name": "image_6",
+            "required": false
+          },
+          {
+            "name": "image_7",
+            "required": false
+          }
+        ]
+      },
+      {
+        "model": "kling-video-v3_0_omni",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "5",
+            "allowed_values": [
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15"
+            ],
+            "description": "Video duration in seconds, support 3s to 15s"
+          },
+          {
+            "name": "aspect_ratio",
+            "required": false,
+            "default": "16:9",
+            "allowed_values": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ]
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "1080p",
+            "allowed_values": [
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "description": "Quality tier. 720p=std, 1080p=pro. 4k for members."
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "prefer_multi_shots",
+            "required": false,
+            "default": "false",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          },
+          {
+            "name": "enable_audio",
+            "required": false,
+            "default": "true",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          },
+          {
+            "name": "elements",
+            "required": false
+          }
+        ],
+        "inputs": [
+          {
+            "name": "image_1",
+            "required": true
+          },
+          {
+            "name": "image_2",
+            "required": false
+          },
+          {
+            "name": "image_3",
+            "required": false
+          },
+          {
+            "name": "image_4",
+            "required": false
+          },
+          {
+            "name": "image_5",
+            "required": false
+          },
+          {
+            "name": "image_6",
+            "required": false
+          },
+          {
+            "name": "image_7",
+            "required": false
+          }
+        ]
+      },
+      {
+        "model": "kling-video-v3_0",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "5",
+            "allowed_values": [
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15"
+            ],
+            "description": "Video duration in seconds, support 3s to 15s. Longer durations may require prefer_multi_shots."
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "1080p",
+            "allowed_values": [
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "description": "Quality tier (member: up to 4k)."
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "prefer_multi_shots",
+            "required": false,
+            "default": "true",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          },
+          {
+            "name": "enable_audio",
+            "required": false,
+            "default": "true",
+            "allowed_values": [
+              "true",
+              "false"
+            ]
+          },
+          {
+            "name": "elements",
+            "required": false
+          }
+        ],
+        "inputs": [
+          {
+            "name": "first_image",
+            "required": true
+          },
+          {
+            "name": "tail_image",
+            "required": false
+          }
+        ]
+      },
+      {
+        "model": "kling-video-v3_0_turbo",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "5",
+            "allowed_values": [
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15"
+            ],
+            "description": "Video duration in seconds, support 3s to 15s."
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "1080p",
+            "allowed_values": [
+              "720p",
+              "1080p"
+            ],
+            "description": "Output resolution tier. 720p, 1080p"
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          }
+        ],
+        "inputs": [
+          {
+            "name": "first_image",
+            "required": true
+          }
+        ]
+      },
+      {
+        "model": "kling-video-v4_0",
+        "arguments": [
+          {
+            "name": "prompt",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "required": false,
+            "default": "10",
+            "allowed_values": [
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "16",
+              "17",
+              "18",
+              "19",
+              "20",
+              "21",
+              "22",
+              "23",
+              "24",
+              "25",
+              "26",
+              "27",
+              "28",
+              "29",
+              "30"
+            ],
+            "description": "Video duration in seconds, support 3s to 30s."
+          },
+          {
+            "name": "resolution",
+            "required": false,
+            "default": "720p",
+            "allowed_values": [
+              "720p",
+              "1080p"
+            ],
+            "description": "Quality tier. 720p; members may also choose 1080p. 4K is not enabled."
+          },
+          {
+            "name": "imageCount",
+            "required": false,
+            "default": "1",
+            "allowed_values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "aspect_ratio",
+            "required": false,
+            "allowed_values": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "21:9"
+            ]
+          }
+        ],
+        "inputs": [
+          {
+            "name": "first_image",
+            "required": false
+          },
+          {
+            "name": "tail_image",
+            "required": false
+          },
+          {
+            "name": "keyframe_1",
+            "required": false
+          },
+          {
+            "name": "keyframe_2",
+            "required": false
+          },
+          {
+            "name": "keyframe_3",
+            "required": false
+          },
+          {
+            "name": "keyframe_4",
+            "required": false
+          },
+          {
+            "name": "keyframe_5",
+            "required": false
+          },
+          {
+            "name": "keyframe_6",
+            "required": false
+          },
+          {
+            "name": "keyframe_7",
+            "required": false
+          },
+          {
+            "name": "keyframe_8",
+            "required": false
+          },
+          {
+            "name": "keyframe_9",
+            "required": false
+          },
+          {
+            "name": "keyframe_10",
+            "required": false
+          }
+        ]
+      }
+    ],
+    "available_credits": 18832,
+    "membership": "Premier"
+  },
+  "budget": {
+    "images_generated": 0,
+    "kling_tasks_submitted": 0,
+    "tts_requests": 0
+  },
+  "stage": "0.2",
+  "duration_spec_conflict": "6–8 × 3–5 seconds cannot reach 45–60 seconds; awaiting user choice",
+  "qwen": {
+    "health": {
+      "status": "ok",
+      "fields": [
+        "status",
+        "models",
+        "mlx_audio"
+      ]
+    },
+    "voices": {
+      "available_non_private_ids": [
+        "audition_01",
+        "audition_02"
+      ],
+      "excluded_private_or_unknown_count": 2
+    }
+  },
+  "ffmpeg": "8.1.1",
+  "ffprobe": "8.1.1",
+  "skills": [
+    "short-drama-agent",
+    "higgsfield-cinema",
+    "gpt-image-2-style-library",
+    "imagegen",
+    "video-editing",
+    "kling-cli"
+  ]
+}
