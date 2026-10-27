@@ -38,9 +38,9 @@ node scripts/local.mjs stop
 1. 与 Codex 确定剧本、角色、场景、道具和分镜。
 2. 生图前使用 `gpt-image-2-style-library`，读取 `references/style-library.md` 选择模板，再调用内置 `image_gen`。保留最终提示词和模板名；不要把工具名称当成已核验的模型版本。
 3. 图片生成后通过“本机制作 → 导入生成素材”绑定到角色、场景、道具或分镜。支持 PNG、JPEG、WebP；会检测实际图像内容。
-4. 视频由 Codex 调用可灵官方 MCP，提交前按当次模型规格与预算执行。模型能力与计费以官方MCP当次who_am_i规格为准；预算应记录输出和参考素材时长。下载选中结果后导入 MP4/MOV，只绑定分镜。
-5. 每次导入新增独立文件和生成记录，并更新目标当前素材；旧 Take 保留。SHA-256由服务计算；填写实际提示词、模板、模型与任务ID。provider目前按媒体类型标记，文字元数据可缺省，不能单凭标签证明实际生成工具。
-6. 返回剧集、分镜或画布继续选片、配音与合成。视频导入检测容器和视频轨道，不代表人工画质或剧情连续性已验收。
+4. 视频由 Codex 调用可灵官方 MCP，提交前按当次模型规格与预算执行。模型能力与计费以官方MCP当次who_am_i规格为准；预算应记录输出和参考素材时长。下载选中结果后导入 MP4/MOV，绑定分镜；FFmpeg 成片可绑定剧集。
+5. 不同内容的导入新增独立文件和生成记录，并更新目标当前素材；旧 Take 保留。同剧集同目标同类型同 SHA-256 重传返回原回执，不追加 Take，也不切回旧 Take。SHA-256由服务计算；填写实际提示词、模板、模型与任务ID。provider目前按媒体类型标记，文字元数据可缺省，不能单凭标签证明实际生成工具。
+6. 返回剧集、分镜或画布继续选片、配音与合成。视频/音频导入检测容器、轨道及完整解码，不代表人工画质或剧情连续性已验收。
 
 Codex 也可通过本地接口回填，避免手工重复上传：
 
@@ -52,7 +52,7 @@ curl -f http://127.0.0.1:5679/api/v1/local-production/import \
   -F 'file=@/absolute/path/to/character.png'
 ```
 
-使用本项目实际 ID。`kind` 为 `image` 或 `video`；`target_type` 为 `storyboard`、`character`、`scene`、`prop`，视频仅支持 `storyboard`。单次文件最大 300 MB。接口只接受上传文件，不接受任意本机路径或远程下载地址。
+使用本项目实际 ID。`kind` 为 `image`、`video` 或 `audio`；图片目标为 `storyboard`、`character`、`scene`、`prop`；视频目标为 `storyboard` 或 `episode`（成片）；音频仅支持 `storyboard`，必须是48 kHz单声道WAV。首次导入HTTP201、幂等重传HTTP200，返回import_id、SHA-256、idempotency_key及duplicate。单次文件最大 300 MB。接口只接受上传文件，不接受任意本机路径或远程下载地址。
 
 ## 数据与 Git
 

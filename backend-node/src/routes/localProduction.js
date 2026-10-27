@@ -22,7 +22,11 @@ module.exports = function localProduction(db, cfg, log) {
     if (origin && !(cfg.server?.cors_origins || []).includes(origin)) return response.forbidden(res, '仅允许本机制作页面导入');
     upload(req, res, async (err) => {
       if (err) return response.badRequest(res, err.code === 'LIMIT_FILE_SIZE' ? '素材不能超过 300MB' : '素材上传失败');
-      try { response.created(res, await service.importMedia(db, cfg, req.file, req.body)); }
+      try {
+        const result = await service.importMedia(db, cfg, req.file, req.body);
+        if (result.duplicate) response.success(res, result);
+        else response.created(res, result);
+      }
       catch (error) { log.warn('local media import rejected', { error: error.message }); response.badRequest(res, '导入失败：请检查目标、文件类型和媒体完整性'); }
       finally { if (req.file?.path) fs.rmSync(req.file.path, { force: true }); }
     });

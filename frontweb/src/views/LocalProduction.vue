@@ -21,10 +21,11 @@ const form = reactive({ kind: 'image', target_type: 'storyboard', target_id: nul
 const targetOptions = computed(() => {
   if (!drama.value) return []
   if (form.target_type === 'storyboard') return (drama.value.episodes || []).flatMap(ep => (ep.storyboards || []).map(sb => ({ id: sb.id, label: `第 ${ep.episode_number} 集 · 镜头 ${sb.storyboard_number} ${sb.title || ''}` })))
+  if (form.target_type === 'episode') return (drama.value.episodes || []).map(ep => ({ id: ep.id, label: `第 ${ep.episode_number} 集 ${ep.title || ''}` }))
   const keys = { character: 'characters', scene: 'scenes', prop: 'props' }
   return (drama.value[keys[form.target_type]] || []).map(item => ({ id: item.id, label: item.name || item.location || `素材 ${item.id}` }))
 })
-watch(() => form.kind, kind => { media.value = ''; file.value = null; if (kind === 'video') form.target_type = 'storyboard' })
+watch(() => form.kind, kind => { media.value = ''; file.value = null; form.target_id = null; if (kind !== 'image' || form.target_type === 'episode') form.target_type = 'storyboard' })
 watch(() => form.target_type, () => { form.target_id = null })
 watch(dramaId, async id => {
   form.target_id = null
@@ -113,29 +114,29 @@ onMounted(refresh)
           <p class="hint">把 Codex 生成的图片或可灵镜头绑定到项目。每次导入保留独立文件与来源记录。</p>
           <el-form label-position="top" @submit.prevent="importMedia">
             <div class="form-row">
-              <el-form-item label="素材类型"><el-select v-model="form.kind" aria-label="素材类型"><el-option label="image_gen 图片" value="image" /><el-option label="可灵 MCP 视频" value="video" /></el-select></el-form-item>
-              <el-form-item label="绑定类型"><el-select v-model="form.target_type" aria-label="绑定类型" :disabled="form.kind === 'video'"><el-option label="分镜" value="storyboard" /><el-option label="角色" value="character" /><el-option label="场景" value="scene" /><el-option label="道具" value="prop" /></el-select></el-form-item>
+              <el-form-item label="素材类型"><el-select v-model="form.kind" aria-label="素材类型"><el-option label="image_gen 图片" value="image" /><el-option label="镜头视频 / 剧集成片" value="video" /><el-option label="Qwen 配音 WAV" value="audio" /></el-select></el-form-item>
+              <el-form-item label="绑定类型"><el-select v-model="form.target_type" aria-label="绑定类型" :disabled="form.kind === 'audio'"><el-option label="分镜" value="storyboard" /><el-option v-if="form.kind === 'image'" label="角色" value="character" /><el-option v-if="form.kind === 'image'" label="场景" value="scene" /><el-option v-if="form.kind === 'image'" label="道具" value="prop" /><el-option v-if="form.kind === 'video'" label="剧集成片" value="episode" /></el-select></el-form-item>
             </div>
             <el-form-item label="项目"><el-select v-model="dramaId" aria-label="项目" placeholder="选择项目" style="width:100%"><el-option v-for="d in dramas" :key="d.id" :label="d.title" :value="d.id" /></el-select></el-form-item>
             <el-form-item label="绑定目标"><el-select v-model="form.target_id" aria-label="绑定目标" placeholder="选择已有分镜或素材" style="width:100%"><el-option v-for="target in targetOptions" :key="target.id" :label="target.label" :value="target.id" /></el-select></el-form-item>
             <p v-if="dramaId && !targetOptions.length" class="hint">请先在剧集页面建立对应的分镜、角色、场景或道具。</p>
-            <el-form-item label="素材文件"><input :key="form.kind" type="file" aria-label="素材文件" :accept="form.kind === 'image' ? 'image/png,image/jpeg,image/webp' : 'video/mp4,video/quicktime'" @change="file = $event.target.files?.[0] || null" /></el-form-item>
+            <el-form-item label="素材文件"><input :key="form.kind" type="file" aria-label="素材文件" :accept="form.kind === 'image' ? 'image/png,image/jpeg,image/webp' : form.kind === 'audio' ? 'audio/wav,audio/x-wav' : 'video/mp4,video/quicktime'" @change="file = $event.target.files?.[0] || null" /></el-form-item>
             <el-form-item label="最终提示词"><el-input v-model="form.prompt" aria-label="最终提示词" type="textarea" :rows="3" :maxlength="20000" /></el-form-item>
             <div class="form-row">
               <el-form-item label="风格模板"><el-input v-model="form.style_template" aria-label="风格模板" :maxlength="500" placeholder="记录所选模板名" /></el-form-item>
               <el-form-item label="实际模型（可选）"><el-input v-model="form.model" aria-label="实际模型" :maxlength="500" placeholder="按工具实际返回填写" /></el-form-item>
             </div>
-            <el-form-item v-if="form.kind === 'video'" label="可灵任务 ID（可选）"><el-input v-model="form.generation_id" aria-label="可灵任务 ID" :maxlength="500" /></el-form-item>
+            <el-form-item v-if="form.kind === 'video'" label="来源任务 ID（可选）"><el-input v-model="form.generation_id" aria-label="来源任务 ID" :maxlength="500" /></el-form-item>
             <el-button type="primary" :loading="importing" :disabled="!file || !form.target_id" @click="importMedia">导入并绑定</el-button>
           </el-form>
-          <div v-if="media" class="media-result"><video v-if="form.kind === 'video'" :src="media" controls preload="metadata" /><img v-else :src="media" alt="刚导入的生成素材" /></div>
+          <div v-if="media" class="media-result"><video v-if="form.kind === 'video'" :src="media" controls preload="metadata" /><audio v-else-if="form.kind === 'audio'" :src="media" controls preload="metadata" /><img v-else :src="media" alt="刚导入的生成素材" /></div>
         </section>
       </div>
       <section class="panel workflow">
         <h2>制作顺序</h2>
         <ol><li>与 Codex 确定剧本、风格、角色与分镜；在项目内保存。</li><li>Codex 用风格库优化提示词并调用 image_gen，导入角色、场景和分镜图。</li><li>确认镜头与预算后，Codex 调用可灵 MCP，下载并导入选中 Take。</li><li>本地生成配音，回到分镜页面选片、合成，再完成剪辑与声音检查。</li></ol>
         <router-link to="/ai-config">查看 AI 配置 →</router-link>
-        <p class="hint">图片与视频在 Codex 会话中调用。此页面负责接收产物；内置助手与自动写剧本按钮需要另外配置文本模型。</p>
+        <p class="hint">生成工具由 Codex 会话调用；此页面接收图片、镜头视频、配音和剧集成片并归档。</p>
       </section>
     </main>
   </div>
