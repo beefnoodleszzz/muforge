@@ -218,3 +218,14 @@
 本批有效删除 0 文件，0 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch6。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
 
 七个无前端调用旧接口：先移除两个无消费者的前端API声明并重建dist，再对全仓库（含scripts/docs、编译产物）和12个本机技能/plugin根全文复扫；剔除注册定义与审计清单提及后，7条均未发现保留调用。原另外2条无前端调用接口agent/approve与agent/decline已随助手功能单元整体退役。保留真实场景/角色/道具/分镜生成接口，不按名字删除画布batchGenerateImages（它逐条调用核心接口，非已退休旧batch API）。
+
+## 有效批次 7：已解除引用的依赖与可复现锁文件
+
+本批已通过真实目录与独立沙箱测试/构建、setup/start/status/health、本机制作/项目列表浏览器、两次PNG及一次MP4 curl导入、分镜绑定/旧Take/来源SHA、FFmpeg合成及完整解码；真实data/.local前后指纹一致。共享Qwen仅只读检测；沙箱已停止并保留。
+
+| 路径 | 变更 | 原文件字节 |
+| --- | --- | --- |
+| backend-node/package-lock.json | M | 186892 |
+| backend-node/package.json | M | 806 |
+
+本批有效删除 0 文件，0 字节。证据和日志：/var/folders/90/l9wxyby101xb8xvjw64v9cz00000gn/T/muforge-slim-e-preflight-r3rci6rn/batch7。前文回滚尝试仅作过程记录，不影响本次独立重验结果。
