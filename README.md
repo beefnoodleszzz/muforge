@@ -38,15 +38,20 @@ node scripts/local.mjs stop
 
 ```text
 muforge/
+├── .agents/skills/     项目级导演技能
+├── .github/            GitHub 模板与仓库配置
 ├── backend-node/       Express、SQLite、素材与合成服务
-├── frontweb/           Vue 3、Vite、Element Plus 界面
+│   ├── configs/config.yaml                  后端配置
 │   └── migrations/archive/desktop-initial/  原样保留的7份桌面迁移
+├── frontweb/           Vue 3、Vite、Element Plus 界面
 ├── scripts/            Mac 本地启停与环境准备
 ├── docs/               当前文档与上游历史资料
-└── tasks/              当前配置与验收进度
+├── tasks/              当前配置与验收进度
+├── example_drama/      上游示例工程
+└── 项目截图/           保留的上游历史素材
 ```
 
-数据库和私有生产素材保存在 `backend-node/data/`；运行日志在 `.local/`。这些目录已排除出 Git。停止幕匠不会停止共享的 Qwen3-TTS 服务。Electron 运行与打包端已退役，历史迁移原样归档；desktop/ 仅保留不可删除的忽略规则。
+数据库和私有生产素材保存在 `backend-node/data/`；运行日志在 `.local/`。这些目录已排除出 Git。停止幕匠不会停止共享的 Qwen3-TTS 服务。Electron 运行与打包端已退役，历史迁移原样归档。
 
 ## 开发验证
 

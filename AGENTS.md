@@ -14,7 +14,7 @@
 
 ## 当前结构与验证约定
 
-- 运行结构为 backend-node（Express/SQLite）和 frontweb（Vue/Vite）。Electron、Mastra工具型助手、渠道锁及SD2远端认证已退役；desktop/仅保留原.gitignore，不删除任何既有忽略规则。
+- 当前有两个子项目：backend-node（Express/SQLite）和 frontweb（Vue/Vite）。后端配置文件为 `backend-node/configs/config.yaml`，加载逻辑见 `backend-node/src/config/index.js`。Electron、Mastra工具型助手、渠道锁及SD2远端认证已退役；desktop/残留忽略文件已清理。
 - 后端正式迁移为migrations/顶层23份SQL（含素材导入幂等迁移）；archive/desktop-initial/原样保存7份历史SQL，不递归执行。不得删除旧迁移或操作真实data/.local。
 - 保留通用OpenAI兼容文本适配器、列表/画布、资产库、素材导入/绑定、多Take、Qwen配音与FFmpeg。按用户的核心接口保留决定，旧图片/视频客户端和仍被使用的依赖暂保留；不要为了达到预估删除数字拔掉核心调用。
 - backend-node执行 `node --test test/*.test.js`；frontweb执行 `node --test test/*.test.js` 与 `npm run build`。仓库未配置lint/typecheck，不宣称执行了不存在的检查。
