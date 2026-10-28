@@ -1,0 +1,205 @@
+{
+  "episode": 1,
+  "title": "换个老板",
+  "logline": "被上司夺走署名的方案作者，亮出新股东身份夺回主动，却发现打压背后另有其人。",
+  "genre": "都市逆袭打脸",
+  "hook": "首镜文件夹被推回，作者当面遭到“你的名字，不配在上面”的羞辱。",
+  "twist": "被剥夺署名的作者已完成公司收购，夺取成果的人忽然需要向她求情。",
+  "cliffhanger": "她没有接受道歉，而是要求幕后操纵者现身。",
+  "characters": [
+    {
+      "id": "CH01",
+      "name": "林澈",
+      "anchor": "原创虚构东亚成年女性，约30岁，清瘦匀称，椭圆脸，黑色低发髻，右侧一缕贴脸碎发，米白色无标志西装外套、深青色高领内搭、黑色直筒裤，左胸银色细月牙胸针，神态沉稳",
+      "voice": "audition_01"
+    },
+    {
+      "id": "CH02",
+      "name": "顾衡",
+      "anchor": "原创虚构东亚成年男性，约38岁，中等结实体型，方脸、浓直眉、整齐黑色侧分短发，无胡须，炭灰色无标志西装、白衬衫、暗酒红色领带，右手银色素圈戒指",
+      "voice": "audition_01"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "SC01",
+      "name": "玻璃会议室",
+      "desc": "黄昏的高层玻璃会议室，长条深色胡桃木会议桌从前景延向后方，后墙落地窗可见没有标识的城市楼群，左墙磨砂玻璃门，右墙深青色墙面，暖琥珀色条形吊灯。林澈始终在画面左侧，顾衡始终在画面右侧。桌面仅有一只无字深青色文件夹。"
+    }
+  ],
+  "shots": [
+    {
+      "id": "E01S01",
+      "duration": 6,
+      "framing": "中景双人侧背",
+      "camera": "固定机位，略低视点",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "顾衡用右手把无字文件夹沿桌面推向林澈。",
+      "dialogue": [
+        {
+          "character": "CH02",
+          "text": "你的名字，不配在上面。"
+        }
+      ],
+      "emotion": "傲慢施压",
+      "continuity": "文件夹初始在右侧；两人站立；林澈在左、顾衡在右。"
+    },
+    {
+      "id": "E01S02",
+      "duration": 6,
+      "framing": "林澈侧面中景，顾衡右肩作前景",
+      "camera": "极慢推近",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "林澈用左手按住面前的文件夹。",
+      "dialogue": [
+        {
+          "character": "CH01",
+          "text": "方案是我做的。"
+        }
+      ],
+      "emotion": "克制坚定",
+      "continuity": "文件夹停在左侧，不换手；顾衡仍在右侧。"
+    },
+    {
+      "id": "E01S03",
+      "duration": 6,
+      "framing": "顾衡侧面中景，林澈左肩作前景",
+      "camera": "固定机位",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "顾衡抬起右手食指指向桌面。",
+      "dialogue": [
+        {
+          "character": "CH02",
+          "text": "成果，归公司。"
+        }
+      ],
+      "emotion": "轻蔑",
+      "continuity": "文件夹仍在林澈左手下；右手戒指不变。"
+    },
+    {
+      "id": "E01S04",
+      "duration": 6,
+      "framing": "林澈侧背中景",
+      "camera": "缓慢低位推近",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "林澈将左手从文件夹上缓缓收回。",
+      "dialogue": [
+        {
+          "character": "CH01",
+          "text": "那就先换个老板。"
+        }
+      ],
+      "emotion": "平静反击",
+      "continuity": "文件夹静止在左侧；两人均站立；不越轴。"
+    },
+    {
+      "id": "E01S05",
+      "duration": 6,
+      "framing": "顾衡侧面中景",
+      "camera": "固定机位",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "顾衡把指向桌面的右手收回身侧。",
+      "dialogue": [
+        {
+          "character": "CH02",
+          "text": "你什么意思？"
+        }
+      ],
+      "emotion": "惊疑",
+      "continuity": "文件夹仍在左侧，无新道具；保持顾衡右侧。"
+    },
+    {
+      "id": "E01S06",
+      "duration": 6,
+      "framing": "林澈左侧三分之二侧背，双人中远景",
+      "camera": "缓慢上升数厘米的低角度推近",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "林澈沿桌边向主位迈出一步。",
+      "dialogue": [
+        {
+          "character": "CH01",
+          "text": "这家公司，我买了。"
+        }
+      ],
+      "emotion": "从容掌控",
+      "continuity": "只迈一步；文件夹留在桌面左侧；顾衡右侧静止，以空间变化表现权力反转。"
+    },
+    {
+      "id": "E01S07",
+      "duration": 6,
+      "framing": "顾衡侧面中景，林澈左背影前景",
+      "camera": "极慢推近",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "顾衡向林澈微微低头。",
+      "dialogue": [
+        {
+          "character": "CH02",
+          "text": "我道歉，还来得及吗？"
+        }
+      ],
+      "emotion": "失势恳求",
+      "continuity": "林澈在前镜迈出一步的位置；不夸张跪地；文件夹未动。"
+    },
+    {
+      "id": "E01S08",
+      "duration": 6,
+      "framing": "林澈侧背中景，左墙玻璃门进入画面",
+      "camera": "缓慢向左横移数厘米",
+      "scene": "SC01",
+      "characters": [
+        "CH01",
+        "CH02"
+      ],
+      "action": "林澈将视线转向左侧玻璃门。",
+      "dialogue": [
+        {
+          "character": "CH01",
+          "text": "叫你背后的人来。"
+        }
+      ],
+      "emotion": "冷静追问，悬念",
+      "continuity": "顾衡仍在右后景，不添加第三人；门外只有模糊光线，不出现新角色。"
+    }
+  ],
+  "style_suffix": "统一画风：原创成人都市漫剧，高级电影感三维动画，略风格化但符合人体解剖的五官与比例，真实布料微纹理、哑光皮肤、克制的细节，青灰环境与暖琥珀侧光，柔和全局照明，35毫米镜头质感，清晰层次，竖屏9:16，无任何文字、标志、水印，不模仿已有IP。",
+  "production_spec": {
+    "duration": 48,
+    "aspect_ratio": "9:16",
+    "delivery": "1080x1920",
+    "kling_resolution": "720p",
+    "kling_task_cap": 10,
+    "tts_line_count": 8,
+    "tts_call_cap": 10,
+    "character_candidates_per_entity": 2,
+    "scene_candidates_per_entity": 2,
+    "firstframe_candidates_per_shot": 2
+  }
+}

@@ -65,4 +65,9 @@ npm run build
 
 Electron、Mastra工具型助手、渠道锁和SD2远端认证已退役；已有工程格式、素材库、Take和全部迁移保留。按核心功能保留的6条图片/视频接口仍使用旧客户端兼容实现，尚未重写；本机制作主线使用Codex生成后导入。真实模型/模板/任务信息需要填写并保留制作清单，导入标签本身不是工具实证。
 
-完整删除证据、保留依赖、隔离测试、配音对比和出片质量缺口见 [SLIM_REPORT](docs/SLIM_REPORT.md)。当前在slim/focus本地分支，禁止push与历史改写；既有上游示例/风格素材及文档引用截图未擅自删除。
+完整删除证据、保留依赖、隔离测试、配音对比和出片质量缺口见 [SLIM_REPORT](docs/SLIM_REPORT.md)。瘦身与后续正确性修复整合到主分支供审核；提交与push按用户当前授权，禁止擅自改写历史；既有上游示例/风格素材及文档引用截图未擅自删除。
+
+
+## 审核入口
+
+代码与真实生产测试的范围、验证证据及已知制作质量问题见 [审核交接](docs/prod-test/REVIEW_HANDOFF.md)。项目级导演技能原文位于 [.agents/skills/higgsfield-cinema/SKILL.md](.agents/skills/higgsfield-cinema/SKILL.md)；复制技能不代表此前制作已按其核心方法执行。

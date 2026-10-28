@@ -10,4 +10,4 @@
 
 当前入口：http://127.0.0.1:5679/local-production 。本轮未提交可灵付费任务、未构建 Electron；内置文本模型未配置。
 
-当前瘦身任务覆盖前述发布交接授权：仅在slim/focus本地分批提交，禁止push和改写历史。Electron/Mastra/渠道/认证单元及依赖的实际处置与质量缺口，以docs/SLIM_REPORT.md为准。
+历史瘦身任务曾限定仅在slim/focus本地分批提交、禁止push。当前用户已明确授权将完整代码整合到main并push供他人审核；不改写历史。Electron/Mastra/渠道/认证单元及依赖的实际处置与质量缺口，以docs/SLIM_REPORT.md为准。
